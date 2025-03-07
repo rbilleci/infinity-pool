@@ -3,7 +3,7 @@ output "eks_cluster_endpoint" {
   value       = module.eks.cluster_endpoint
 }
 
-output "aurora_endpoint" {
-  description = "Aurora Serverless cluster endpoint"
-  value       = aws_rds_cluster.aurora.endpoint
-}
+#output "aurora_endpoint" {
+#  description = "Aurora Serverless cluster endpoint"
+#  value       = aws_rds_cluster.aurora.endpoint
+#}

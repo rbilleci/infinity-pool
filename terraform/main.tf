@@ -9,20 +9,16 @@ provider "aws" {
   }
 }
 
-# Create a VPC
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.19.0"
-
-  name = "vpc"
-  cidr = "10.0.0.0/16"
-
+  source             = "terraform-aws-modules/vpc/aws"
+  version            = "5.19.0"
+  name               = "vpc"
+  cidr               = "10.0.0.0/16"
+  enable_nat_gateway = true
+  enable_vpn_gateway = false
   azs = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
   public_subnets = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-
-  enable_nat_gateway = false
-  enable_vpn_gateway = false
 }
 
 # EKS
@@ -35,8 +31,10 @@ module "eks" {
   subnet_ids      = module.vpc.private_subnets
   eks_managed_node_groups = {
     default = {
+      # Use of ARM instances
       ami_type = "AL2023_ARM_64_STANDARD"
-      instance_types = ["t4g.nano"]
+      # Use instance types with a minimum of 1GB RAM
+      instance_types = ["t4g.micro"]
     }
   }
 }
@@ -59,8 +57,8 @@ resource "aws_rds_cluster" "aurora" {
     min_capacity = 0.5
   }
 
-
 }
+
 resource "aws_rds_cluster_instance" "aurora" {
   cluster_identifier = aws_rds_cluster.aurora.id
   instance_class     = "db.serverless"
