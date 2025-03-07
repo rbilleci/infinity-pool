@@ -25,7 +25,7 @@ variable "aurora_cluster_identifier" {
 variable "db_username" {
   description = "Database master username"
   type        = string
-  default     = "admin"
+  default     = "postgres"
 }
 
 variable "db_password" {
