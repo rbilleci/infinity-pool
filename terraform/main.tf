@@ -28,13 +28,14 @@ module "vpc" {
 # EKS
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
-  version         = "20.33.1"
+  version         = "20.34.0"
   cluster_name    = var.cluster_name
-  cluster_version = "1.31"
+  cluster_version = "1.32"
   vpc_id          = module.vpc.vpc_id
   subnet_ids      = module.vpc.private_subnets
   eks_managed_node_groups = {
     default = {
+      ami_type = "AL2023_ARM_64_STANDARD"
       instance_types = ["t4g.nano"]
     }
   }
@@ -42,23 +43,20 @@ module "eks" {
 
 # AURORA
 resource "aws_rds_cluster" "aurora" {
-  cluster_identifier      = var.aurora_cluster_identifier
-  engine                  = "aurora-postgresql"
-  engine_mode             = "provisioned"
-  # TODO
-  # engine_version          = ""
-  master_username         = var.db_username
-  master_password         = var.db_password
-  storage_encrypted       = true
+  cluster_identifier   = var.aurora_cluster_identifier
+  engine               = "aurora-postgresql"
+  engine_mode          = "provisioned"
+  master_username      = var.db_username
+  master_password      = var.db_password
+  storage_encrypted    = true
   backup_retention_period = 0
-  vpc_security_group_ids = [module.eks.cluster_security_group_id]
-  db_subnet_group_name    = aws_db_subnet_group.aurora_subnet.name
-  skip_final_snapshot     = true
+  #vpc_security_group_ids = [module.eks.cluster_security_group_id]
+  db_subnet_group_name = aws_db_subnet_group.aurora_subnet.name
+  skip_final_snapshot  = true
 
   serverlessv2_scaling_configuration {
-    max_capacity             = 1.0
-    min_capacity             = 0.5
-    seconds_until_auto_pause = 3600
+    max_capacity = 1.0
+    min_capacity = 0.5
   }
 
 
