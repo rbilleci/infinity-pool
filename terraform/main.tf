@@ -30,6 +30,8 @@ module "vpc" {
 }
 
 # EKS
+data "aws_caller_identity" "current" {}
+
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "20.34.0"
@@ -44,8 +46,36 @@ module "eks" {
     }
   }
   # Allow management from local computer
-  cluster_endpoint_public_access = true
+  cluster_endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
+  access_entries = {
+    access_entry = {
+      principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+      policy_associations = {
+        view_cluster = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
+          access_scope = {
+            type = "cluster"
+            namespaces = []
+          }
+        }
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+          access_scope = {
+            type = "cluster"
+            namespaces = []
+          }
+        }
+        cluster_admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+            namespaces = []
+          }
+        }
+      }
+    }
+  }
 }
 
 # AURORA
