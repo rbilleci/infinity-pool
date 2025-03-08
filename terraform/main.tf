@@ -37,13 +37,15 @@ module "eks" {
   cluster_version = "1.32"
   vpc_id          = module.vpc.vpc_id
   subnet_ids      = module.vpc.private_subnets
-  cluster_endpoint_public_access = true # allow management from local computer
   eks_managed_node_groups = {
     default = {
       ami_type = "AL2023_ARM_64_STANDARD" # Use of ARM instances
       instance_types = ["t4g.micro"] # Use instance types with a minimum of 1GB RAM
     }
   }
+  # Allow management from local computer
+  cluster_endpoint_public_access = true
+  enable_cluster_creator_admin_permissions = true
 }
 
 # AURORA
