@@ -22,3 +22,7 @@ output "aurora_endpoint" {
   description = "Aurora Serverless cluster endpoint"
   value       = aws_rds_cluster.aurora.endpoint
 }
+
+output "lb_public_dns_name" {
+  value = aws_lb.public_alb.dns_name
+}
