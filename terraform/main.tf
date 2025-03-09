@@ -87,7 +87,7 @@ module "eks" {
 
 # Private DNS (for access to Aurora)
 resource "aws_route53_zone" "private" {
-  name = "infinity-pool.internal"
+  name          = "infinity-pool.internal"
   force_destroy = true
   vpc {
     vpc_id = module.vpc.vpc_id
@@ -131,6 +131,7 @@ resource "aws_rds_cluster" "aurora" {
   cluster_identifier      = var.aurora_cluster_identifier
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
+  database_name           = "postgres" # initial database name
   master_username         = local.db_username
   master_password         = local.db_password
   port                    = 5432
@@ -160,7 +161,7 @@ resource "aws_db_subnet_group" "aurora_subnet" {
 # AURORA DNS RECORD
 resource "aws_route53_record" "aurora_db" {
   zone_id = aws_route53_zone.private.zone_id
-  name    = "db"   # This will create db.<myapp>.internal
+  name = "db"   # This will create db.<myapp>.internal
   type    = "CNAME"
   ttl     = 30
   records = [aws_rds_cluster.aurora.endpoint]
@@ -180,4 +181,12 @@ resource "helm_release" "secrets_store_csi" {
   namespace  = "kube-system"
   repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
   chart      = "secrets-store-csi-driver"
+}
+
+# ECR
+resource "aws_ecr_repository" "infinity-pool" {
+  name = "infinity-pool"
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 }
