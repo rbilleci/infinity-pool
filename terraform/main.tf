@@ -85,6 +85,14 @@ module "eks" {
   }
 }
 
+# Private DNS (for access to Aurora)
+resource "aws_route53_zone" "private" {
+  name = "infinity-pool.internal"
+  force_destroy = true
+  vpc {
+    vpc_id = module.vpc.vpc_id
+  }
+}
 
 # AURORA Credentials
 ## First create the AWS Secret for the database credentials
@@ -147,4 +155,13 @@ resource "aws_rds_cluster_instance" "aurora" {
 resource "aws_db_subnet_group" "aurora_subnet" {
   name       = "aurora-subnet-group"
   subnet_ids = module.vpc.database_subnets
+}
+
+# AURORA DNS RECORD
+resource "aws_route53_record" "aurora_db" {
+  zone_id = aws_route53_zone.private.zone_id
+  name    = "db"   # This will create db.<myapp>.internal
+  type    = "CNAME"
+  ttl     = 30
+  records = [aws_rds_cluster.aurora.endpoint]
 }

@@ -4,11 +4,6 @@ output "eks_cluster_endpoint" {
 }
 
 output "db_host" {
-  description = "Aurora Serverless cluster endpoint"
-  value       = aws_rds_cluster.aurora.endpoint
-}
-
-output "db_port" {
-  description = "Aurora Serverless cluster endpoint"
-  value       = aws_rds_cluster.aurora.port
+  description = "Aurora DNS Name"
+  value       = aws_route53_record.aurora_db.fqdn
 }
