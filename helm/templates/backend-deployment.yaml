@@ -17,9 +17,10 @@ spec:
       labels:
         app.kubernetes.io/name: backend
     spec:
+      serviceAccountName: svc-account
       containers:
         - name: backend
-          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          image: "{{ .Values.aws.accountId }}.dkr.ecr.{{ .Values.aws.region }}.amazonaws.com/{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           ports:
             - containerPort: 80
           resources:
@@ -30,24 +31,9 @@ spec:
               memory: "{{ .Values.backend.memory }}"
               cpu: "{{ .Values.backend.cpu }}"
           env:
+            - name: AWS_DEFAULT_REGION
+              value: "{{ .Values.aws.region }}"
             - name: DB_HOST
               value: "db.infinity-pool.internal"
             - name: DB_PORT
               value: "5432"
-            - name: DB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: db_username
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: db_password
-      volumes:
-        - name: secrets-store-inline
-          csi:
-            driver: secrets-store.csi.k8s.io
-            readOnly: true
-            volumeAttributes:
-              secretProviderClass: "secrets-provider"

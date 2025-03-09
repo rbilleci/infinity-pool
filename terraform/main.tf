@@ -126,12 +126,53 @@ locals {
 }
 
 
+#---------------------------------------------------------------------------------------------------------------------
+# ROLE W/SECRETS ACCESS
+data "aws_iam_openid_connect_provider" "eks" {
+  url = module.eks.cluster_oidc_issuer_url
+}
+data "aws_iam_policy_document" "assume_role_policy" {
+  statement {
+    effect = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    principals {
+      type = "Federated"
+      identifiers = [data.aws_iam_openid_connect_provider.eks.arn]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(data.aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
+      values = ["system:serviceaccount:default:svc-account"]
+    }
+  }
+}
+resource "aws_iam_role" "svc_role" {
+  name               = "svc-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+}
+data "aws_iam_policy_document" "service_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    resources = ["*"]  # Replace "*" with specific ARNs if you want to restrict access.
+  }
+}
+resource "aws_iam_role_policy" "service_policy_attachment" {
+  name   = "ServicePolicy"
+  role   = aws_iam_role.svc_role.id
+  policy = data.aws_iam_policy_document.service_policy.json
+}
+
+#---------------------------------------------------------------------------------------------------------------------
 # AURORA
 resource "aws_rds_cluster" "aurora" {
   cluster_identifier      = var.aurora_cluster_identifier
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
-  database_name           = "postgres" # initial database name
+  database_name = "postgres" # initial database name
   master_username         = local.db_username
   master_password         = local.db_password
   port                    = 5432
@@ -168,6 +209,14 @@ resource "aws_route53_record" "aurora_db" {
 }
 
 
+# ECR
+resource "aws_ecr_repository" "infinity-pool" {
+  name = "infinity-pool"
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
 # SECRETS
 provider "helm" {
   version = "2.17.0"
@@ -176,17 +225,9 @@ provider "helm" {
   }
 }
 
-resource "helm_release" "secrets_store_csi" {
-  name       = "secrets-store-csi"
-  namespace  = "kube-system"
-  repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
-  chart      = "secrets-store-csi-driver"
-}
-
-# ECR
-resource "aws_ecr_repository" "infinity-pool" {
-  name = "infinity-pool"
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
+#resource "helm_release" "secrets_store_csi" {
+#  name       = "secrets-store-csi"
+#  namespace  = "kube-system"
+#  repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
+#  chart      = "secrets-store-csi-driver"
+#}
