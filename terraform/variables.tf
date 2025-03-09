@@ -21,15 +21,3 @@ variable "aurora_cluster_identifier" {
   type        = string
   default     = "infinity-pool-db"
 }
-
-variable "db_username" {
-  description = "Database master username"
-  type        = string
-  default     = "postgres"
-}
-
-variable "db_password" {
-  description = "Database master password"
-  type        = string
-  sensitive   = true
-}

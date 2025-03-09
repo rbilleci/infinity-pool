@@ -85,19 +85,52 @@ module "eks" {
   }
 }
 
+
+# AURORA Credentials
+## First create the AWS Secret for the database credentials
+resource "random_password" "db_password" {
+  length  = 30
+  special = false
+}
+resource "aws_secretsmanager_secret" "db_credentials" {
+  name = "db_credentials" # Preferably, prefix with environment id to allow multiple deployments per account
+  recovery_window_in_days = 0
+}
+resource "aws_secretsmanager_secret_version" "db_credentials_version" {
+  secret_id = aws_secretsmanager_secret.db_credentials.id
+  secret_string = jsonencode({
+    db_username = "postgres",
+    db_password = random_password.db_password.result
+  })
+}
+## Retrieve the credentials, set locally
+data "aws_secretsmanager_secret" "db_credentials" {
+  depends_on = [aws_secretsmanager_secret_version.db_credentials_version]
+  name = "db_credentials"
+}
+data "aws_secretsmanager_secret_version" "db_secret_version" {
+  secret_id = data.aws_secretsmanager_secret.db_credentials.id
+}
+locals {
+  db_credentials = jsondecode(data.aws_secretsmanager_secret_version.db_secret_version.secret_string)
+  db_username = local.db_credentials["db_username"]
+  db_password = local.db_credentials["db_password"]
+}
+
+
 # AURORA
 resource "aws_rds_cluster" "aurora" {
-  cluster_identifier   = var.aurora_cluster_identifier
-  engine               = "aurora-postgresql"
-  engine_mode          = "provisioned"
-  master_username      = var.db_username
-  master_password      = var.db_password
-  storage_encrypted    = true
+  cluster_identifier      = var.aurora_cluster_identifier
+  engine                  = "aurora-postgresql"
+  engine_mode             = "provisioned"
+  master_username         = local.db_username
+  master_password         = local.db_password
+  port                    = 5432
+  storage_encrypted       = true
   backup_retention_period = 1
+  db_subnet_group_name    = aws_db_subnet_group.aurora_subnet.name
+  skip_final_snapshot     = true
   #vpc_security_group_ids = [module.eks.cluster_security_group_id]
-  db_subnet_group_name = aws_db_subnet_group.aurora_subnet.name
-  skip_final_snapshot  = true
-
   serverlessv2_scaling_configuration {
     max_capacity = 1.0
     min_capacity = 0.5
