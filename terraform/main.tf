@@ -101,7 +101,7 @@ resource "random_password" "db_password" {
   special = false
 }
 resource "aws_secretsmanager_secret" "db_credentials" {
-  name = "db_credentials" # Preferably, prefix with environment id to allow multiple deployments per account
+  name = "db-credentials" # Preferably, prefix with environment id to allow multiple deployments per account
   recovery_window_in_days = 0
 }
 resource "aws_secretsmanager_secret_version" "db_credentials_version" {
@@ -114,7 +114,7 @@ resource "aws_secretsmanager_secret_version" "db_credentials_version" {
 ## Retrieve the credentials, set locally
 data "aws_secretsmanager_secret" "db_credentials" {
   depends_on = [aws_secretsmanager_secret_version.db_credentials_version]
-  name = "db_credentials"
+  name = "db-credentials"
 }
 data "aws_secretsmanager_secret_version" "db_secret_version" {
   secret_id = data.aws_secretsmanager_secret.db_credentials.id
