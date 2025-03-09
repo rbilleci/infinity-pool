@@ -27,6 +27,12 @@ module "vpc" {
   public_subnets = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   database_subnets = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+  public_subnet_tags = {
+    "kubernetes.io/role/elb" = 1
+  }
+  private_subnet_tags = {
+    "kubernetes.io/role/internal-elb" = 1
+  }
 }
 
 # EKS
@@ -37,17 +43,17 @@ module "eks" {
   version         = "20.34.0"
   cluster_name    = var.cluster_name
   cluster_version = "1.32"
-  vpc_id          = module.vpc.vpc_id
-  subnet_ids      = module.vpc.private_subnets
-  eks_managed_node_groups = {
-    default = {
-      ami_type = "AL2023_ARM_64_STANDARD" # Use of ARM instances
-      instance_types = ["t4g.micro"] # Use instance types with a minimum of 1GB RAM
-    }
+  vpc_id = module.vpc.vpc_id
+  # EKS Auto Mode
+  cluster_compute_config = {
+    enabled = true
+    node_pools = ["general-purpose"]
   }
+  subnet_ids = module.vpc.private_subnets
   # Allow management from local computer
   cluster_endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
+
   access_entries = {
     access_entry = {
       principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
@@ -95,7 +101,6 @@ resource "aws_rds_cluster" "aurora" {
     max_capacity = 1.0
     min_capacity = 0.5
   }
-
 }
 
 resource "aws_rds_cluster_instance" "aurora" {
@@ -109,60 +114,3 @@ resource "aws_db_subnet_group" "aurora_subnet" {
   name       = "aurora-subnet-group"
   subnet_ids = module.vpc.database_subnets
 }
-
-
-# Public Load Balancer
-resource "aws_lb" "public_alb" {
-  name               = "lb-public"
-  load_balancer_type = "application"
-  subnets            = module.vpc.public_subnets
-  security_groups = [aws_security_group.alb_sg.id]
-  internal           = false
-}
-
-resource "aws_lb_listener" "public_listener" {
-  load_balancer_arn = aws_lb.public_alb.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.public_tg.arn
-  }
-}
-
-resource "aws_lb_target_group" "public_tg" {
-  name     = "${aws_lb.public_alb.name}-tg"
-  vpc_id   = module.vpc.vpc_id
-  port     = 80
-  protocol = "HTTP"
-}
-
-resource "aws_security_group" "alb_sg" {
-  name        = "alb-sg"
-  description = "Security group for the public ALB"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    description = "Allow HTTP traffic from anywhere"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Allow HTTPS traffic from anywhere"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-

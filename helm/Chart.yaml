@@ -1,0 +1,7 @@
+# See https://helm.sh/docs/topics/charts/
+apiVersion: v2
+appVersion: "1.0"
+version: 0.1.0
+type: application
+name: infinity-pool-app
+description: Helm chart for deploying the "hello world" infinity-pool app
