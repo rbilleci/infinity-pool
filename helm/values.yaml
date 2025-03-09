@@ -1,5 +1,7 @@
 gateway:
   replicaCount: 1
+  cpu: 0.5
+  memory: 128Mi
   image:
     repository: nginx
     tag: latest
@@ -7,6 +9,8 @@ gateway:
 
 backend:
   replicaCount: 1
+  cpu: 0.5
+  memory: 128Mi
   image:
     repository: nginx
     tag: latest

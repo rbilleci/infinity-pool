@@ -165,3 +165,19 @@ resource "aws_route53_record" "aurora_db" {
   ttl     = 30
   records = [aws_rds_cluster.aurora.endpoint]
 }
+
+
+# SECRETS
+provider "helm" {
+  version = "2.17.0"
+  kubernetes {
+    config_path = "~/.kube/config"
+  }
+}
+
+resource "helm_release" "secrets_store_csi" {
+  name       = "secrets-store-csi"
+  namespace  = "kube-system"
+  repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
+  chart      = "secrets-store-csi-driver"
+}

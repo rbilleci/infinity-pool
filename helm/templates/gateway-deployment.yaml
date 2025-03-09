@@ -24,11 +24,11 @@ spec:
             - containerPort: 80
           resources:
             requests:
-              memory: 128Mi
-              cpu: 0.5
+              memory: "{{ .Values.gateway.memory }}"
+              cpu: "{{ .Values.gateway.cpu }}"
             limits:
-              memory: 128Mi
-              cpu: 0.5
+              memory: "{{ .Values.gateway.memory }}"
+              cpu: "{{ .Values.gateway.cpu }}"
           env:
             - name: BACKEND_URL
-              value: http://www.google.com
+              value: "http://{{ .Values.backend.name }}.{{ .Values.backend.namespace }}.svc.cluster.local:{{ .Values.backend.port }}"
