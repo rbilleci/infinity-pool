@@ -44,17 +44,16 @@ module "eks" {
   version         = "20.34.0"
   cluster_name    = var.cluster_name
   cluster_version = "1.32"
-  vpc_id = module.vpc.vpc_id
-  # EKS Auto Mode
+  vpc_id          = module.vpc.vpc_id
+  subnet_ids      = module.vpc.private_subnets
+
+  cluster_endpoint_public_access           = true
+  enable_cluster_creator_admin_permissions = true
+
   cluster_compute_config = {
     enabled = true
     node_pools = ["general-purpose"]
   }
-  subnet_ids = module.vpc.private_subnets
-  # Allow management from local computer
-  cluster_endpoint_public_access           = true
-  enable_cluster_creator_admin_permissions = true
-
   access_entries = {
     access_entry = {
       principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
@@ -85,6 +84,7 @@ module "eks" {
   }
 }
 
+
 # Private DNS (for access to Aurora)
 resource "aws_route53_zone" "private" {
   name          = "infinity-pool.internal"
@@ -94,8 +94,8 @@ resource "aws_route53_zone" "private" {
   }
 }
 
+#---------------------------------------------------------------------------------------------------------------------
 # AURORA Credentials
-## First create the AWS Secret for the database credentials
 resource "random_password" "db_password" {
   length  = 30
   special = false
@@ -111,7 +111,6 @@ resource "aws_secretsmanager_secret_version" "db_credentials_version" {
     db_password = random_password.db_password.result
   })
 }
-## Retrieve the credentials, set locally
 data "aws_secretsmanager_secret" "db_credentials" {
   depends_on = [aws_secretsmanager_secret_version.db_credentials_version]
   name = "db-credentials"
@@ -131,6 +130,7 @@ locals {
 data "aws_iam_openid_connect_provider" "eks" {
   url = module.eks.cluster_oidc_issuer_url
 }
+
 data "aws_iam_policy_document" "assume_role_policy" {
   statement {
     effect = "Allow"
@@ -180,11 +180,19 @@ resource "aws_rds_cluster" "aurora" {
   backup_retention_period = 1
   db_subnet_group_name    = aws_db_subnet_group.aurora_subnet.name
   skip_final_snapshot     = true
-  #vpc_security_group_ids = [module.eks.cluster_security_group_id]
+  vpc_security_group_ids = [module.eks.cluster_primary_security_group_id]
   serverlessv2_scaling_configuration {
     max_capacity = 1.0
     min_capacity = 0.5
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "eks_to_aurora" {
+  security_group_id = module.eks.cluster_primary_security_group_id
+  referenced_security_group_id = module.eks.cluster_primary_security_group_id
+  from_port   = 5432
+  to_port     = 5432
+  ip_protocol = "tcp"
 }
 
 resource "aws_rds_cluster_instance" "aurora" {
@@ -199,6 +207,7 @@ resource "aws_db_subnet_group" "aurora_subnet" {
   subnet_ids = module.vpc.database_subnets
 }
 
+
 # AURORA DNS RECORD
 resource "aws_route53_record" "aurora_db" {
   zone_id = aws_route53_zone.private.zone_id
@@ -211,23 +220,9 @@ resource "aws_route53_record" "aurora_db" {
 
 # ECR
 resource "aws_ecr_repository" "infinity-pool" {
-  name = "infinity-pool"
+  name         = "infinity-pool"
+  force_delete = true
   image_scanning_configuration {
     scan_on_push = true
   }
 }
-
-# SECRETS
-provider "helm" {
-  version = "2.17.0"
-  kubernetes {
-    config_path = "~/.kube/config"
-  }
-}
-
-#resource "helm_release" "secrets_store_csi" {
-#  name       = "secrets-store-csi"
-#  namespace  = "kube-system"
-#  repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
-#  chart      = "secrets-store-csi-driver"
-#}

@@ -36,8 +36,8 @@ Commands
 # Building and dunning the docker containers locally
     
     
-    docker build -t frontend .
-    docker run -p 8080:80 frontend
+    docker build -t gateway .
+    docker run -p 8080:80 gateway
 
     docker build -t backend .
     docker run -p 8081:80 backend

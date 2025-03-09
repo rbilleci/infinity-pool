@@ -29,6 +29,18 @@ spec:
             limits:
               memory: "{{ .Values.gateway.memory }}"
               cpu: "{{ .Values.gateway.cpu }}"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
           env:
             - name: BACKEND_URL
               value: "http://backend.default.svc.cluster.local"

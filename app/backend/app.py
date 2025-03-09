@@ -12,14 +12,26 @@ secret_data = json.loads(secrets_client.get_secret_value(SecretId='db-credential
 app = Flask(__name__)
 
 def get_connection():
+    app.logger.warning("acquiring connection")
     db_username = secret_data['db_username']
     db_password = secret_data['db_password']
     db_host = os.getenv("DB_HOST")
     db_port = os.getenv("DB_PORT")
-    return psycopg.connect(host=db_host, port=db_port, user=db_username, password=db_password, dbname='postgres')
+    app.logger.warning("username %s", db_username)
+    app.logger.warning("password %s", db_password)
+    app.logger.warning("host %s", db_host)
+    app.logger.warning("port %s", db_port)
+    return psycopg.connect(
+        host=db_host,
+        port=db_port,
+        user=db_username,
+        password=db_password,
+        dbname='postgres',
+        connect_timeout=1)
 
 def init(connection, cursor):
     # Create table and insert sample data if not exists
+    app.logger.warning("initializing database")
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS greetings (
             id SERIAL PRIMARY KEY,
@@ -27,10 +39,13 @@ def init(connection, cursor):
         )
     """)
     # Insert the initial record if it does not exist
+    app.logger.warning("selecting message")
     cursor.execute("SELECT message FROM greetings LIMIT 1")
     if not cursor.fetchone():
+        app.logger.warning("inserting message")
         cursor.execute("INSERT INTO greetings (message) VALUES ('Hello World') RETURNING message")
         connection.commit()
+    app.logger.warning("finished initialization")
 
 
 @app.route("/", methods=["GET"])
@@ -40,13 +55,17 @@ def read_from_db():
         with get_connection() as connection:
             with connection.cursor() as cursor:
                 init(connection, cursor)
+                app.logger.warning("selecting message")
                 cursor.execute("SELECT message FROM greetings LIMIT 1")
                 row = cursor.fetchone()
                 return jsonify({"greeting": row[0]})
     except Exception as e:
+        app.logger.warning(str(e))
         return jsonify({"error": str(e)}), 500
 
+@app.route("/health", methods=["GET"])
+def health():
+    return "OK"
+
 if __name__ == "__main__":
-    print("starting backend")
-    print(secret_data)
     app.run(host="0.0.0.0", port=80)
