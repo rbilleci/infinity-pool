@@ -12,6 +12,9 @@ terraform {
   backend "s3" {}
 }
 
+# AWS Account ID
+data "aws_caller_identity" "current" {}
+
 # VPC
 module "vpc" {
   source               = "terraform-aws-modules/vpc/aws"
@@ -36,8 +39,6 @@ module "vpc" {
 }
 
 # EKS
-data "aws_caller_identity" "current" {}
-
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "20.34.0"

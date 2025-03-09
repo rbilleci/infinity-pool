@@ -1,0 +1,34 @@
+#  See:
+#   https://docs.aws.amazon.com/eks/latest/userguide/auto-elb-example.html
+#   https://aws.amazon.com/blogs/containers/getting-started-with-amazon-eks-auto-mode/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+spec:
+  replicas: {{ .Values.gateway.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: "{{ .Values.gateway.image.repository }}:{{ .Values.gateway.image.tag }}"
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 0.5
+            limits:
+              memory: 128Mi
+              cpu: 0.5
+          env:
+            - name: BACKEND_URL
+              value: http://www.google.com

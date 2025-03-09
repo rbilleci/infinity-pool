@@ -1,9 +1,8 @@
-# SEE: https://docs.aws.amazon.com/eks/latest/userguide/auto-elb-example.html
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  #namespace: game-2048
-  name: frontend
+  #namespace: ...
+  name: gateway
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
@@ -16,6 +15,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: frontend
+                name: gateway
                 port:
                   number: 80

@@ -1,4 +1,11 @@
-frontend:
+gateway:
+  replicaCount: 1
+  image:
+    repository: nginx
+    tag: latest
+    pullPolicy: IfNotPresent
+
+backend:
   replicaCount: 1
   image:
     repository: nginx
@@ -7,12 +14,12 @@ frontend:
 
 # With an empty nodeSelector, there’s no restriction on which nodes the pod can run on. We can later add key/value
 # pairs here to schedule the pod on nodes that match specific labels.
-nodeSelector: { }
+# nodeSelector: { }
 
 # An empty list means the pod won’t tolerate any taints by default. Tolerations allow pods to be scheduled on
 # nodes that have specific taints, so without any defined, the pod will only run on nodes without conflicting taints.
-tolerations: [ ]
+# tolerations: [ ]
 
 #An empty affinity block means there are no rules set for pod or node affinity/anti-affinity. These rules can be used
 # to influence pod placement (for example, to keep certain pods together or apart), but here none are applied.
-affinity: { }
+# affinity: { }

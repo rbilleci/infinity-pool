@@ -1,0 +1,34 @@
+#  See:
+#   https://docs.aws.amazon.com/eks/latest/userguide/auto-elb-example.html
+#   https://aws.amazon.com/blogs/containers/getting-started-with-amazon-eks-auto-mode/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: backend
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 0.5
+            limits:
+              memory: 128Mi
+              cpu: 0.5
+          env:
+            - name: BACKEND_URL
+              value: http://www.google.com
