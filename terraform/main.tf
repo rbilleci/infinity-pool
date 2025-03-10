@@ -128,10 +128,12 @@ locals {
 #---------------------------------------------------------------------------------------------------------------------
 # ROLE W/SECRETS ACCESS
 data "aws_iam_openid_connect_provider" "eks" {
+  depends_on = [module.eks]
   url = module.eks.cluster_oidc_issuer_url
 }
 
 data "aws_iam_policy_document" "assume_role_policy" {
+  depends_on = [module.eks]
   statement {
     effect = "Allow"
     actions = ["sts:AssumeRoleWithWebIdentity"]
