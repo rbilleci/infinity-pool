@@ -1,75 +1,27 @@
-# Steps
-## 1. Get simplistic version working, end-to-end.
-## 2. Add Multi-AZ support
-## 3. Networking improvements (VPN, Private Link, CDN, etc...)
 
-# OSX Install
+# Infinity Pool Sample Application
 
-### Install Docker Desktop
-https://docs.docker.com/desktop/setup/install/mac-install/
+## Introduction
 
-### Install Brew
+## Deploying the Infinity Pool Application
 
-### Update Brew
-    
-    brew update
+### 1. Get an AWS Account
 
-### Install Terraform, Terragrunt, Kubectl, and Helm
+A prerequisite to deploying the Infinity Pool application is to have an AWS Account. 
+The application is deployed to the eu-west-1 region by default.
+You will need to create an ACCESS KEY and SECRET ACCESS KEY, and you will need your AWS ACCOUNT ID.
+These will be configured as secrets for GitHub Actions. 
 
-    brew tap hashicorp/tap
-    brew install hashicorp/tap/terraform
-    brew install terragrunt
-    brew install kubectl
-    brew install helm
+### 2. Configuring secrets GitHub for GitHub Actions
 
+Configure the following GitHub Secrets. These are required to deploy the infinity pool application to your AWS account. 
+For information on how to configure secrets in GitHub Actions [here.](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
 
-# Install the AWS CLI
+    AWS_ACCOUNT_ID
+    AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY
 
-    https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+# References
 
-Commands
-
-    aws configure
-    export AWS_REGION=eu-west-1
-    export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-
-# Building and dunning the docker containers locally
-    
-    
-    docker build -t gateway .
-    docker run -p 8080:80 gateway
-
-    docker build -t backend .
-    docker run -p 8081:80 backend
-
-
-# Deploying
-    terragrunt apply
-
-# Build and Push the Docker images for the services
-
-    export REPOURI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/infinity-pool
-
-    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REPOURI}
-
-    cd app/backend
-    docker buildx build --platform linux/amd64,linux/arm64 -t backend .
-    docker tag backend:latest ${REPOURI}:backend-latest
-    docker push ${REPOURI}:backend-latest
-    cd ../..
-
-    cd app/gateway
-    docker buildx build --platform linux/amd64,linux/arm64 -t gateway .
-    docker tag gateway:latest ${REPOURI}:gateway-latest
-    docker push ${REPOURI}:gateway-latest
-    cd ../..
-
-# Deploying the service
-
-    aws eks update-kubeconfig --region eu-west-1 --name infinity-pool-eks
-    helm upgrade --install infinity-pool ./helm --set aws.region=$(aws configure get region) --set aws.accountId=$(aws sts get-caller-identity --query Account --output text)
-
-# Cleaning up
-    terraform deploy
-
-
+1. [GitHub Actions Tutorial](https://www.youtube.com/watch?v=YLtlz88zrLg) 
+2. [Act](https://nektosact.com/introduction.html), for testing GitHub Actions locally. 
