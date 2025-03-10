@@ -26,10 +26,10 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
   enable_vpn_gateway   = false
-  azs = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
-  public_subnets = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  database_subnets = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+  azs                  = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
+  public_subnets       = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+  private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  database_subnets     = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
   public_subnet_tags = {
     "kubernetes.io/role/elb" = 1
   }
@@ -51,7 +51,7 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
 
   cluster_compute_config = {
-    enabled = true
+    enabled    = true
     node_pools = ["general-purpose"]
   }
   access_entries = {
@@ -61,21 +61,21 @@ module "eks" {
         view_cluster = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
           access_scope = {
-            type = "cluster"
+            type       = "cluster"
             namespaces = []
           }
         }
         admin = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
           access_scope = {
-            type = "cluster"
+            type       = "cluster"
             namespaces = []
           }
         }
         cluster_admin = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
           access_scope = {
-            type = "cluster"
+            type       = "cluster"
             namespaces = []
           }
         }
@@ -101,7 +101,7 @@ resource "random_password" "db_password" {
   special = false
 }
 resource "aws_secretsmanager_secret" "db_credentials" {
-  name = "db-credentials" # Preferably, prefix with environment id to allow multiple deployments per account
+  name                    = "db-credentials" # Preferably, prefix with environment id to allow multiple deployments per account
   recovery_window_in_days = 0
 }
 resource "aws_secretsmanager_secret_version" "db_credentials_version" {
@@ -113,15 +113,15 @@ resource "aws_secretsmanager_secret_version" "db_credentials_version" {
 }
 data "aws_secretsmanager_secret" "db_credentials" {
   depends_on = [aws_secretsmanager_secret_version.db_credentials_version]
-  name = "db-credentials"
+  name       = "db-credentials"
 }
 data "aws_secretsmanager_secret_version" "db_secret_version" {
   secret_id = data.aws_secretsmanager_secret.db_credentials.id
 }
 locals {
   db_credentials = jsondecode(data.aws_secretsmanager_secret_version.db_secret_version.secret_string)
-  db_username = local.db_credentials["db_username"]
-  db_password = local.db_credentials["db_password"]
+  db_username    = local.db_credentials["db_username"]
+  db_password    = local.db_credentials["db_password"]
 }
 
 
@@ -129,22 +129,22 @@ locals {
 # ROLE W/SECRETS ACCESS
 data "aws_iam_openid_connect_provider" "eks" {
   depends_on = [module.eks]
-  url = module.eks.cluster_oidc_issuer_url
+  url        = module.eks.cluster_oidc_issuer_url
 }
 
 data "aws_iam_policy_document" "assume_role_policy" {
   depends_on = [module.eks]
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = ["sts:AssumeRoleWithWebIdentity"]
     principals {
-      type = "Federated"
+      type        = "Federated"
       identifiers = [data.aws_iam_openid_connect_provider.eks.arn]
     }
     condition {
       test     = "StringEquals"
       variable = "${replace(data.aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub"
-      values = ["system:serviceaccount:default:svc-account"]
+      values   = ["system:serviceaccount:default:svc-account"]
     }
   }
 }
@@ -159,7 +159,7 @@ data "aws_iam_policy_document" "service_policy" {
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
-    resources = ["*"]  # Replace "*" with specific ARNs if you want to restrict access.
+    resources = ["*"] # Replace "*" with specific ARNs if you want to restrict access.
   }
 }
 resource "aws_iam_role_policy" "service_policy_attachment" {
@@ -174,7 +174,7 @@ resource "aws_rds_cluster" "aurora" {
   cluster_identifier      = var.aurora_cluster_identifier
   engine                  = "aurora-postgresql"
   engine_mode             = "provisioned"
-  database_name = "postgres" # initial database name
+  database_name           = "postgres" # initial database name
   master_username         = local.db_username
   master_password         = local.db_password
   port                    = 5432
@@ -182,7 +182,7 @@ resource "aws_rds_cluster" "aurora" {
   backup_retention_period = 1
   db_subnet_group_name    = aws_db_subnet_group.aurora_subnet.name
   skip_final_snapshot     = true
-  vpc_security_group_ids = [module.eks.cluster_primary_security_group_id]
+  vpc_security_group_ids  = [module.eks.cluster_primary_security_group_id]
   serverlessv2_scaling_configuration {
     max_capacity = 1.0
     min_capacity = 0.5
@@ -190,11 +190,11 @@ resource "aws_rds_cluster" "aurora" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "eks_to_aurora" {
-  security_group_id = module.eks.cluster_primary_security_group_id
+  security_group_id            = module.eks.cluster_primary_security_group_id
   referenced_security_group_id = module.eks.cluster_primary_security_group_id
-  from_port   = 5432
-  to_port     = 5432
-  ip_protocol = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+  ip_protocol                  = "tcp"
 }
 
 resource "aws_rds_cluster_instance" "aurora" {
@@ -213,7 +213,7 @@ resource "aws_db_subnet_group" "aurora_subnet" {
 # AURORA DNS RECORD
 resource "aws_route53_record" "aurora_db" {
   zone_id = aws_route53_zone.private.zone_id
-  name = "db"   # This will create db.<myapp>.internal
+  name    = "db" # This will create db.<myapp>.internal
   type    = "CNAME"
   ttl     = 30
   records = [aws_rds_cluster.aurora.endpoint]
