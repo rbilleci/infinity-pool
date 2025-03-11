@@ -55,11 +55,19 @@ the AWS Console or get it from the command line.
 
 #### Getting the DNS Name from AWS Console
 
-1. Login to the AWS Console
-2. Navigate to the "EC2" page
-3. In the sidebar, select "Load Balancers"
-4. You will then see a list of the load balancers. Find the load balancer a name starting with `k8s-default-gateway`. 
+1. Login to the AWS Console, search for "ec2", then navigate to the EC2 page
+
+    <br/><br/><div style="text-align: center;"><img src="docs/images/load-balancer-1.png" width="800" alt=""></div><br/><br/>
+
+
+
+2. In the sidebar, select "Load Balancers"
+
+   <br/><br/><div style="text-align: center;"><img src="docs/images/load-balancer-2.png" width="800" alt=""></div><br/><br/>
+
+3. You will then see a list of the load balancers. Find the load balancer a name starting with `k8s-default-gateway`. 
    This is the load balancer to the gateway service. You can copy its DNS name and paste it into your web browser.
+   <br/><br/><div style="text-align: center;"><img src="docs/images/load-balancer-3.png" width="800" alt=""></div><br/><br/>
 
 #### Alternative: Getting the DNS Name from the Command Line
 
@@ -86,7 +94,10 @@ To uninstall the Infinity Pool sample application, navigate to your GitHub proje
 On the left sidebar you'll see a workflow titled 'Destroy the Infinity Pool Application'. Select that workflow, then 
 select the button 'Run workflow' as shown in the screenshot:
 
+Expect it to take 15-30 minutes for the infrastructure to be destroyed.
+
 ![screenshot-destroy-workflow.png](docs/images/screenshot-destroy-workflow.png)
+
 
 # Testing CI/CD Locally
 
