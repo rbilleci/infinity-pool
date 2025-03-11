@@ -20,6 +20,7 @@ Let's start by looking at the solution architecture for Infinity Pool.
 #### Technologies Used
 
 The Infinity Pool infrastructure and services are built on the following technologies:
+
 - AWS as the cloud provider.
 - EKS Auto Mode for container orchestration.
 - Amazon Aurora Serverless for PostgreSQL as the database engine.
@@ -41,7 +42,23 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
 - GitHub Actions: For continuous integration and delivery, with act available for local workflow testing.
 
 #### Deployment Architecture
-<< PLACEHOLDER >>
+
+
+<img src="docs/images/sa-components.png" width="500" align="left">
+
+1. **GitHub:** on commit a workflow is triggered. GitHub runners use Terragrunt, Terraform, and Helm to deploy the infrastructure. 
+2. **Terraform State:** is stored in Amazon S3
+3. **GitHub Actions:** build the Gateway Service and Backend Service images and push them to Amazon ECR.
+4. **Helm** is triggered by GitHub Actions to run the Gateway Services and Backend Services, and configure ingress.
+5. **Requests** from external sources are routed through Amazon Load Balancers.
+6. **Gateway Service:** receives requests 
+7. The **Gateway Service** forwards requests to the Backend Service.
+8. The **Backend Service** handles requests from the Gateway Service. It gets database credentials from the AWS Secrets Manager.
+9. The **Backend Servuce** queries a Postgres database to fetch a "hello world" message. This message is passed back to 
+   the **GatewayService**, through the ALB, and back to the requester.
+
+
+<div style="clear:left"/>
 
 #### Project Structure
 
