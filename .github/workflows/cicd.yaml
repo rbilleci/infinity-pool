@@ -138,9 +138,9 @@ jobs:
           namespace: default
           values: |
             aws.accountId=${{ env.AWS_REGION }},
-            aws.region=${AWS_ACCOUNT_ID},
-            gateway.image.repository=${REPOSITORY},
-            gateway.image.tag=${GATEWAY_IMAGE_TAG},
-            backend.image.repository=${REPOSITORY},
-            backend.image.tag=${BACKEND_IMAGE_TAG}
+            aws.region=${{ env.AWS_ACCOUNT_ID }},
+            gateway.image.repository=${{ env.REPOSITORY }},
+            gateway.image.tag=${{ env.GATEWAY_IMAGE_TAG }},
+            backend.image.repository=${{ env.REPOSITORY }},
+            backend.image.tag=${{ env.BACKEND_IMAGE_TAG }}
           name: ${{ env.RELEASE_NAME }}
