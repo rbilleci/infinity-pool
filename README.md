@@ -82,7 +82,11 @@ Enter this into you web browser, and you should see a hello world message like:
 
 ### Destroying the Environment
 
-<< PLACEHOLDER >>
+To uninstall the Infinity Pool sample application, navigate to your GitHub project and select the 'Actions' tab.
+On the left sidebar you'll see a workflow titled 'Destroy the Infinity Pool Application'. Select that workflow, then 
+select the button 'Run workflow' as shown in the screenshot:
+
+![screenshot-destroy-workflow.png](docs/images/screenshot-destroy-workflow.png)
 
 # Testing CI/CD Locally
 

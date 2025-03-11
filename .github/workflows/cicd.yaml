@@ -10,12 +10,14 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'README.md'
+      - '**/README.md'
+      - '**/github/workflows/**'
   pull_request:
     branches:
       - main
     paths-ignore:
-      - 'README.md'
+      - '**/README.md'
+      - '**/github/workflows/**'
 
 jobs:
   lint:

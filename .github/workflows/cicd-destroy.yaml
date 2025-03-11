@@ -9,7 +9,6 @@ on:
 jobs:
   destroy-infra:
     name: Deploy the Infrastructure
-    needs: [ lint ]
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository with the GitHub Actions runner
