@@ -13,52 +13,110 @@ This is a guide to setting up the Infinity Pool sample application.
 
 << INFORMATION ON FILES IN PROJECT >>
 
-## Prerequisites
+---
+
+# Deployment of the Infinity Pool sample application
+### Prerequisites
 To run the Infinity Pool application, you will require the following:
 
-1. **AWS Account:** since the Infinity Pool sample application is built on AWS, an account with AWS is required. 
-2. **GitHub Account:** This project is delivered as a template, using GitHub Actions to build and deploy to AWS.    
+* **AWS Account:** the Infinity Pool sample application is built on AWS. You need access to an account.
+* **AWS Experience:** basic experience with AWS is required. 
+    You need familiarity with IAM and EC2, and must know how to create an access key.
+* **GitHub Account:** Infinity Pool uses GitHub actions for deployment, so you need a GitHub account. 
+    You will be guided on how to create a new project from this template, setup your AWS secrets, and them trigger 
+    the CI/CD process to deploy Infinity Pool to your account.
 
-## Limitations
+### Known Limitations
 
 * The current version of this application limits to **one deployment per AWS account**. 
 * The current version has been tested only in the `eu-west-1` region.
 
-## Deploying the Infinity Pool Application
 
-### Step 1: Create a new repository from the template
+## Step 1: Create a new repository from the template
 In the Infinity Pool GitHub project, select `Use this template` in the top right of the home page.
 Then, select `Create a new repository`.
-<br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/use-template-1.png" width="800" alt=""></div><br/>
+<br/><div style="text-align: center;"><img src="docs/images/use-template-1.png" width="800" alt=""></div><br/>
 
 Enter a repository name and select if you want the repository to be public or private. 
 Then select `Create repository`.
+In this example, we named the repository `vigilant-pancake`.
+You can name your repository how you want.
 
-<br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/use-template-2.png" width="800" alt=""></div><br/>
+<br/><div style="text-align: center;"><img src="docs/images/use-template-2.png" width="800" alt=""></div><br/>
 
 After a few seconds, your new repository will be created from the Infinity Pool template. 
-In this example, we named the repository `vigilant-pancake`. 
-You can name you repository how you want.
 
-<br/><div style="text-align: center;><img style="border: 1px solid white" src="docs/images/use-template-3.png" width="800" alt=""></div><br/>
+<br/><div style="text-align: center;"><img src="docs/images/use-template-3.png" width="800" alt=""></div><br/>
 
-### Get an AWS Account
+## Step 2: Create an AWS User and Generate an Access Key
 
-A prerequisite to deploying the Infinity Pool application is to have an AWS Account. 
-The application is deployed to the eu-west-1 region by default.
-You will need to create an ACCESS KEY and SECRET ACCESS KEY.  These will be configured as secrets for GitHub Actions. 
+To enable GitHub Actions to deploy the Infinity Pool sample application to AWS, you need an AWS user with 
+the appropriate permissions an access key. If you don't already have credentials, you can follow these steps
+to create a new user and access key:
 
-### Configuring secrets for GitHub Actions
+1. Sign in to AWS IAM
+   - Go to AWS IAM Console.  
+   - Ensure you're logged in as an AWS account administrator or a user with permission to create IAM users and 
+     manage permissions.
+2. Create a New IAM User
+   - From the IAM dashboard, click `Users` in the left navigation pane. 
+   - Click `Create user`. 
+   - Enter a username (e.g., infinity-pool). 
+   - **IMPORTANT** do not give the user access to the AWS Management Console 
+   - Click `Next`
+3. Assign Permissions to the User
+   - Select `Attach policies directly`.
+    - In the search bar, type `AdministratorAccess` and select the checkbox next to the policy named AdministratorAccess. 
+     **Note: For a real-world application, you should adhere to the principle of least privilege by providing only 
+    the minimum required permissions. However, for simplicity in this exercise, AdministratorAccess is sufficient.**
+   - Click `Next` 
+4. Review and Create the User 
+   - Review the details to ensure correctness. 
+   - Click `Create user`.
+5. Create the Access Key
+   - After the user is created, select it from the list of users.
+   - In the top right, select `Create access key`
+   - You'll be prompted to select your use case.
+   - Select `Other` then select `Next`
+   - Select `Create access key`
+   - Select `Show`, then record in a secure location the values for the `Access Key` and `Secret Access Key`. 
+     You can also choose to download the values as a CSV.` **IMPORTANT: This is the only time AWS will show you the Secret Access Key. 
+     Ensure you securely copy and store these credentials, as you'll need them shortly.**
+   - Select `Done`
 
-Configure the following GitHub Secrets. These are required to deploy the infinity pool application to your AWS account. 
-For information on how to configure secrets in GitHub Actions [here.](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
 
-    AWS_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY
+## Step 3: Configuring Secrets and Variables for GitHub Actions
 
-You also need to set the AWS_REGION as a GitHub variable (not a secret)
+In this step, you'll set up GitHub Secrets and variables that GitHub Actions will use to 
+securely deploy the Infinity Pool application to your AWS account. For information on how to configure secrets in GitHub Actions [here.](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
+
+First, configure your secrets:
+1. Navigate to GitHub Repository Settings
+    - Go to your newly created GitHub repository that was copied from the Infinity Pool template. 
+    - Click on the "Settings" tab at the top-right corner of your repository.
+    - In the left sidebar, select `Secrets and variables`, then choose `Actions`. 
+2. Set GitHub Secrets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. 
+GitHub Secrets securely store sensitive information like AWS credentials.
+Follow these steps to add your AWS credentials:
+   - Under `Secrets`, click the `New repository secret` button.
+   Add the following two secrets separately: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. 
+   The values should come from the AWS Access Key you prviously created.
+
+You'll also need to set the `AWS_REGION` we'll deploy the Infinity Pool application to. 
+The AWS region will be configured as a GitHub Variable. 
+Unlike secrets, GitHub variables store non-sensitive configuration information.
+
+1. You should still be in the`Secrets and variables`  `Actions` page. 
+    - Select the `Variables` tab. 
+    - Click `New repository variable`
+    - enter `AWS_REGION` as the name, and `eu-west-1` as the value.
+
     
-    AWS_REGION=eu-west-1
+## Step 4: Deploying the Infinity Pool application
+
+Assuming you've configured secrets for `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`,
+and the `AWS_REGION` variable, you are ready to deploy the Infinity Pool application.
+
 
 ### Monitoring Progress of Deployment
 
@@ -77,16 +135,16 @@ the AWS Console or get it from the command line.
 
 1. Login to the AWS Console, search for "ec2", then navigate to the EC2 page
 
-    <br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/load-balancer-1.png" width="800" alt=""></div><br/>
+    <br/><div style="text-align: center;"><img src="docs/images/load-balancer-1.png" width="800" alt=""></div><br/>
 
 2. In the sidebar, select "Load Balancers"
 
-   <br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/load-balancer-2.png" width="800" alt=""></div><br/>
+   <br/><div style="text-align: center;"><img src="docs/images/load-balancer-2.png" width="800" alt=""></div><br/>
 
 3. You will then see a list of the load balancers. Find the load balancer a name starting with `k8s-default-gateway`. 
    This is the load balancer to the gateway service. You can copy its DNS name and paste it into your web browser.
    
-    <br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/load-balancer-3.png" width="800" alt=""></div><br/>
+    <br/><div style="text-align: center;"><img src="docs/images/load-balancer-3.png" width="800" alt=""></div><br/>
 
 #### Alternative: Getting the DNS Name from the Command Line
 
@@ -115,7 +173,7 @@ select the button 'Run workflow' as shown in the screenshot:
 
 Expect it to take 15-30 minutes for the infrastructure to be destroyed.
 
-<br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/screenshot-destroy-workflow.png" width="800" alt=""></div><br/>
+<br/><div style="text-align: center;"><img src="docs/images/screenshot-destroy-workflow.png" width="800" alt=""></div><br/>
 
 
 # Testing CI/CD Locally
