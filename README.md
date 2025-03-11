@@ -116,14 +116,15 @@ Unlike secrets, GitHub variables store non-sensitive configuration information.
 
 Assuming you've configured secrets for `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`,
 and the `AWS_REGION` variable, you are ready to deploy the Infinity Pool application.
+You can manyally trigger the deployment in GitHub Actions.
 
-
-### Monitoring Progress of Deployment
-
-Deploying the Infinity Pool sample application can take between 15-30 minutes, 
+1. Select the `Actions` tab in your project.
+2. In the left sidebar, you'll see the list of workflows. Select `Infinity Pool CI/CD`.
+3. Select the `Run workflow` dropdown, then select `Run workflow`
+4. Refresh the page and you should see the workflow running.
+5. Wait until the workflow finishes execution before continuing. Deploying the Infinity Pool sample application can take between 15-30 minutes, 
 due to provisioning of the EKS cluster, Aurora Serverless database cluster, and Application Load Balancers.
 
-<< PLACEHOLDER: Describe how to view job in GitHub >>
 
 ### Validating the Application is running
 
