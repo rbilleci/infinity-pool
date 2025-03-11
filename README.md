@@ -16,7 +16,7 @@ Let's start by looking at the solution architecture for Infinity Pool.
 
 ## Solution Architecture
 
-### Technologies Used
+#### Technologies Used
 
 The Infinity Pool infrastructure and services are built on the following technologies:
 - AWS as the cloud provider.
@@ -24,13 +24,13 @@ The Infinity Pool infrastructure and services are built on the following technol
 - Amazon Aurora Serverless for PostgreSQL as the database engine.
 - AWS Secrets Manager for secure storage of database credentials.
 
-### Infinity Pool Services Overview
+#### Infinity Pool Services Overview
 Infinity Pool consists of two simple microservices:
 * Gateway Service: Receives requests through an Application Load Balancer.  Forwards the requests to the Backend Service.
 * Backend Service: Processes requests received from the Gateway. Queries with the postgres database to retrieve 
   "hello world" messages, returning them to the Gateway Service.
 
-## CI/CD Architecture
+#### CI/CD Architecture
 
 Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that includes:
 
@@ -39,10 +39,10 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
 - Helm: For deploying the Gateway Service and Backend Service to EKS.
 - GitHub Actions: For continuous integration and delivery, with act available for local workflow testing.
 
-## Deployment Architecture
+#### Deployment Architecture
 << PLACEHOLDER >>
 
-## Project Structure
+#### Project Structure
 
 ```
 
@@ -60,10 +60,8 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
 ```
 
 
----
-
-# Deployment of the Infinity Pool sample application
-### Prerequisites
+## Deployment of the Infinity Pool sample application
+#### Prerequisites
 To run the Infinity Pool application, you will require the following:
 
 * **AWS Account:** the Infinity Pool sample application is built on AWS. You need access to an account.
@@ -73,13 +71,13 @@ To run the Infinity Pool application, you will require the following:
     You will be guided on how to create a new project from this template, setup your AWS secrets, and them trigger 
     the CI/CD process to deploy Infinity Pool to your account.
 
-### Known Limitations
+#### Known Limitations
 
 * The current version of this application limits to **one deployment per AWS account**. 
 * The current version has been tested only in the `eu-west-1` region.
 
 
-## Step 1: Create a new repository from the template
+#### Step 1: Create a new repository from the template
 In the Infinity Pool GitHub project, select `Use this template` in the top right of the home page.
 Then, select `Create a new repository`.
 <br/><div style="text-align: center;"><img src="docs/images/use-template-1.png" width="800" alt=""></div><br/>
@@ -95,7 +93,7 @@ After a few seconds, your new repository will be created from the Infinity Pool 
 
 <br/><div style="text-align: center;"><img src="docs/images/use-template-3.png" width="800" alt=""></div><br/>
 
-## Step 2: Create an AWS User and Generate an Access Key
+#### Step 2: Create an AWS User and Generate an Access Key
 
 To enable GitHub Actions to deploy the Infinity Pool sample application to AWS, you need an AWS user with 
 the appropriate permissions an access key. If you don't already have credentials, you can follow these steps
@@ -132,7 +130,7 @@ to create a new user and access key:
    - Select `Done`
 
 
-## Step 3: Configuring Secrets and Variables for GitHub Actions
+#### Step 3: Configuring Secrets and Variables for GitHub Actions
 
 In this step, you'll set up GitHub Secrets and variables that GitHub Actions will use to 
 securely deploy the Infinity Pool application to your AWS account. For information on how to configure secrets in GitHub Actions [here.](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
@@ -158,8 +156,8 @@ Unlike secrets, GitHub variables store non-sensitive configuration information.
     - Click `New repository variable`
     - enter `AWS_REGION` as the name, and `eu-west-1` as the value.
 
-    
-## Step 4: Deploying the Infinity Pool application
+
+#### Step 4: Deploying the Infinity Pool application
 
 Assuming you've configured secrets for `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`,
 and the `AWS_REGION` variable, you are ready to deploy the Infinity Pool application.
@@ -173,13 +171,13 @@ You can manyally trigger the deployment in GitHub Actions.
 due to provisioning of the EKS cluster, Aurora Serverless database cluster, and Application Load Balancers.
 
 
-### Validating the Application is running
+#### Validating the Application is running
 
 To validate the application is running, you can connect to the gateway service via the provisioned 
 Application Load Balancer (ALB). To get the DNS name of the load balancer, you can either retrieve it from
 the AWS Console or get it from the command line.
 
-#### Getting the DNS Name from AWS Console
+##### Getting the DNS Name from AWS Console
 
 1. Login to the AWS Console, search for "ec2", then navigate to the EC2 page
 
@@ -194,7 +192,7 @@ the AWS Console or get it from the command line.
    
     <br/><div style="text-align: center;"><img src="docs/images/load-balancer-3.png" width="800" alt=""></div><br/>
 
-#### Alternative: Getting the DNS Name from the Command Line
+##### Alternative: Getting the DNS Name from the Command Line
 
 If your local computer is already configure with the AWS CLI and kubectl, this approach might be easier for you.
 If you don't have these tools installed, it is recommended to get the DNS name from the AWS Console.
@@ -213,7 +211,7 @@ Enter this into you web browser, and you should see a hello world message like:
     {"data":{"greeting":"Hello World"},"message":"Response from infinity-pool database"}
 
 
-### Destroying the Environment
+#### Destroying the Environment
 
 To uninstall the Infinity Pool sample application, navigate to your GitHub project and select the 'Actions' tab.
 On the left sidebar you'll see a workflow titled 'Destroy the Infinity Pool Application'. Select that workflow, then 
@@ -224,7 +222,7 @@ Expect it to take 15-30 minutes for the infrastructure to be destroyed.
 <br/><div style="text-align: center;"><img src="docs/images/screenshot-destroy-workflow.png" width="800" alt=""></div><br/>
 
 
-# Testing CI/CD Locally
+## Testing CI/CD Locally
 
 You can test the CI/CD pipeline locally by installing [Act](https://nektosact.com/introduction.html). 
 
@@ -233,8 +231,8 @@ should not be checked-in, since it contains the AWS_ACCESS_KEY_ID and AWS_SECRET
 - There is also a `.env` file that references the AWS_REGION environment variable. This is needed for pushing images to
   the AWS ECR Repository.
 
-  
-# References
+
+## References
 
 1. [GitHub Actions Tutorial](https://www.youtube.com/watch?v=YLtlz88zrLg) 
 2. [Act](https://nektosact.com/introduction.html), for testing GitHub Actions locally. 
