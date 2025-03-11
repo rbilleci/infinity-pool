@@ -5,6 +5,21 @@
 
 This is a guide to setting up the Infinity Pool sample application.
 
+## Solution Architecture
+
+<< PLACEHOLDER >>
+
+## Project Layout
+
+<< INFORMATION ON FILES IN PROJECT >>
+
+## Prerequisites
+To run the Infinity Pool application, you will require the following:
+
+1. **AWS Account:** since the Infinity Pool sample application is built on AWS, an account with AWS is required. 
+2. **GitHub Account:** This project is delivered as a template, using GitHub Actions to build and deploy to AWS.    
+
+
 ## Deploying the Infinity Pool Application
 
 ### 1. Get an AWS Account
@@ -25,6 +40,11 @@ You also need to set the AWS_REGION as a GitHub variable (not a secret)
     
     AWS_REGION=eu-west-1
 
+
+### Destroying the Environment
+
+<< PLACEHOLDER >>
+
 # Testing CI/CD Locally
 
 You can test the CI/CD pipeline locally by installing [Act](https://nektosact.com/introduction.html). 
@@ -34,6 +54,7 @@ should not be checked-in, since it contains the AWS_ACCESS_KEY_ID and AWS_SECRET
 - There is also a `.env` file that references the AWS_REGION environment variable. This is needed for pushing images to
   the AWS ECR Repository.
 
+  
 # References
 
 1. [GitHub Actions Tutorial](https://www.youtube.com/watch?v=YLtlz88zrLg) 

@@ -1,14 +1,14 @@
 aws:
-  accountId: 000000
-  region: x-y-1
+  accountId:
+  region:
 
 gateway:
   replicaCount: 1
   cpu: 0.5
   memory: 128Mi
   image:
-    repository: infinity-pool
-    tag: gateway-latest
+    tag:
+    repository:
     pullPolicy: IfNotPresent
 
 backend:
@@ -16,8 +16,8 @@ backend:
   cpu: 0.5
   memory: 128Mi
   image:
-    repository: infinity-pool
-    tag: backend-latest
+    tag:
+    repository:
     pullPolicy: IfNotPresent
 
 # With an empty nodeSelector, there’s no restriction on which nodes the pod can run on. We can later add key/value

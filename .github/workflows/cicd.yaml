@@ -1,8 +1,10 @@
 name: Infinity Pool CI/CD
 env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  CLUSTER_NAME: infinity-pool-eks
+  RELEASE_NAME: infinity-pool
   TERRAFORM_VERSION: 1.11.1
   TERRAGRUNT_VERSION: 0.75.4
-  AWS_REGION: ${{ vars.AWS_REGION }}
 on:
   push:
     branches:
@@ -83,11 +85,14 @@ jobs:
 
       # Configure AWS Credentials. See: https://github.com/aws-actions/configure-aws-credentials
       - name: Configure AWS credentials
+        id: aws-credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+      - name: Set AWS Account ID
+        run: echo AWS_ACCOUNT_ID=${{ steps.aws-credentials.outputs.aws-account-id}} >> $GITHUB_ENV
 
       # Login to ECR. See: https://github.com/aws-actions/amazon-ecr-login
       - name: Login to Amazon ECR
@@ -117,3 +122,25 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$GATEWAY_IMAGE_TAG
 
       # RUN HELM
+      # See: https://github.com/marketplace/actions/deploy-helm-chart-to-aws-eks-cluster
+      - name: Deploy Helm
+        uses: bitovi/github-actions-deploy-eks-helm@v1.2.12
+        env:
+          BACKEND_IMAGE_TAG: backend-${{ github.sha }}
+          GATEWAY_IMAGE_TAG: gateway-${{ github.sha }}
+          REPOSITORY: infinity-pool
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          chart-path: helm/
+          namespace: default
+          values: |
+            aws.accountId=${{ env.AWS_REGION }},
+            aws.region=${AWS_ACCOUNT_ID},
+            gateway.image.repository=${REPOSITORY},
+            gateway.image.tag=${GATEWAY_IMAGE_TAG},
+            backend.image.repository=${REPOSITORY},
+            backend.image.tag=${BACKEND_IMAGE_TAG}
+          name: ${{ env.RELEASE_NAME }}
