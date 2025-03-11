@@ -3,6 +3,8 @@
 
 ## Introduction
 
+This is a guide to setting up the Infinity Pool sample application.
+
 ## Deploying the Infinity Pool Application
 
 ### 1. Get an AWS Account
@@ -18,6 +20,15 @@ For information on how to configure secrets in GitHub Actions [here.](https://do
 
     AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY
+
+# Testing CI/CD Locally
+
+You can test the CI/CD pipeline locally by installing [Act](https://nektosact.com/introduction.html). 
+
+- You'll need to create a `.secrets` file in the project directory. The `.secrets` file is in the `.gitignore` and
+should not be checked-in, since it contains the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+- There is also a `.env` file that references the AWS_REGION environment variable. This is needed for pushing images to
+  the AWS ECR Repository.
 
 # References
 

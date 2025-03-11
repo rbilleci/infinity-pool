@@ -44,7 +44,18 @@ jobs:
       # Checkout the repository with the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
-      # https://github.com/gruntwork-io/terragrunt-action
+      # Configure AWS Credentials. See: https://github.com/aws-actions/configure-aws-credentials
+      - name: Configure AWS credentials
+        id: aws-credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          output-credentials: true
+      - name: Set AWS Account ID
+        run: echo AWS_ACCOUNT_ID=${{ steps.aws-credentials.outputs.aws-account-id}} >> $GITHUB_ENV
+      #  https://github.com/gruntwork-io/terragrunt-action
       - name: Run Terragrunt Plan
         uses: gruntwork-io/terragrunt-action@v2.1.5
         with:
