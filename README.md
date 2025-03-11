@@ -19,8 +19,28 @@ To run the Infinity Pool application, you will require the following:
 1. **AWS Account:** since the Infinity Pool sample application is built on AWS, an account with AWS is required. 
 2. **GitHub Account:** This project is delivered as a template, using GitHub Actions to build and deploy to AWS.    
 
+## Limitations
+
+* The current version of this application limits to **one deployment per AWS account**. 
+* The current version has been tested only in the `eu-west-1` region.
 
 ## Deploying the Infinity Pool Application
+
+### Step 1: Create a new repository from the template
+In the Infinity Pool GitHub project, select `Use this template` in the top right of the home page.
+Then, select `Create a new repository`.
+<br/><div style="text-align: center;"><img src="docs/images/use-template-1.png" width="800" alt=""></div><br/>
+
+Enter a repository name and select if you want the repository to be public or private. 
+Then select `Create repository`.
+
+<br/><div style="text-align: center;"><img src="docs/images/use-template-2.png" width="800" alt=""></div><br/>
+
+After a few seconds, your new repository will be created from the Infinity Pool template. 
+In this example, we named the repository `vigilant-pancake`. 
+You can name you repository how you want.
+
+<br/><div style="text-align: center;"><img src="docs/images/use-template-3.png" width="800" alt=""></div><br/>
 
 ### Get an AWS Account
 
@@ -58,8 +78,6 @@ the AWS Console or get it from the command line.
 1. Login to the AWS Console, search for "ec2", then navigate to the EC2 page
 
     <br/><br/><div style="text-align: center;"><img src="docs/images/load-balancer-1.png" width="800" alt=""></div><br/><br/>
-
-
 
 2. In the sidebar, select "Load Balancers"
 

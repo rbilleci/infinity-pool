@@ -24,6 +24,7 @@ on:
 jobs:
   lint:
     name: Lint and Static Analysis
+    if: github.event.before != '0000000000000000000000000000000000000000'
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository with the GitHub Actions runner
@@ -49,6 +50,7 @@ jobs:
 
   deploy-infra:
     name: Deploy the Infrastructure
+    if: github.event.before != '0000000000000000000000000000000000000000'
     needs: [ lint ]
     runs-on: ubuntu-latest
     steps:
@@ -84,6 +86,7 @@ jobs:
 
   deploy-services:
     name: Deploy Infinity Pool Services
+    if: github.event.before != '0000000000000000000000000000000000000000'
     needs: [ deploy-infra ]
     runs-on: ubuntu-latest
     steps:
