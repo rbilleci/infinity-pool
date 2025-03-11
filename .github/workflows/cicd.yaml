@@ -2,6 +2,7 @@ name: Infinity Pool CI/CD
 env:
   TERRAFORM_VERSION: 1.11.1
   TERRAGRUNT_VERSION: 0.75.4
+  AWS_REGION: ${{ vars.AWS_REGION }}
 on:
   push:
     branches:
