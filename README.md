@@ -21,6 +21,10 @@ For information on how to configure secrets in GitHub Actions [here.](https://do
     AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY
 
+You also need to set the AWS_REGION as a GitHub variable (not a secret)
+    
+    AWS_REGION=eu-west-1
+
 # Testing CI/CD Locally
 
 You can test the CI/CD pipeline locally by installing [Act](https://nektosact.com/introduction.html). 

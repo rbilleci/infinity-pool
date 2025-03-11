@@ -63,6 +63,13 @@ jobs:
           tg_version: ${{ env.TERRAGRUNT_VERSION }}
           tg_dir: terragrunt
           tg_command: plan
+      - name: Run Terragrunt Apply
+        uses: gruntwork-io/terragrunt-action@v2.1.5
+        with:
+          tf_version: ${{ env.TERRAFORM_VERSION }}
+          tg_version: ${{ env.TERRAGRUNT_VERSION }}
+          tg_dir: terragrunt
+          tg_command: apply
 
   deploy-services:
     name: Build the Backend
