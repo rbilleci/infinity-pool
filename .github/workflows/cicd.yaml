@@ -100,10 +100,10 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: infinity-pool
-          IMAGE_TAG: backend-${{ github.sha }}
+          BACKEND_IMAGE_TAG: backend-${{ github.sha }}
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:BACKEND_IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:BACKEND_IMAGE_TAG
 
       # GATEWAY SERVICE
       - name: Build, tag, and push GATEWAY docker image to Amazon ECR
@@ -111,7 +111,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: infinity-pool
-          IMAGE_TAG: gateway-${{ github.sha }}
+          GATEWAY_IMAGE_TAG: gateway-${{ github.sha }}
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:GATEWAY_IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:GATEWAY_IMAGE_TAG
