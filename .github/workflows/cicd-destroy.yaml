@@ -8,7 +8,7 @@ on:
 
 jobs:
   destroy-infra:
-    name: Deploy the Infrastructure
+    name: Destroying the Infrastructure!
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository with the GitHub Actions runner
@@ -43,3 +43,13 @@ jobs:
           else
             echo "No images found in ${{ env.REPOSITORY }} to delete."
           fi
+
+      # DESTROY
+      # https://github.com/gruntwork-io/terragrunt-action
+      - name: Terragrunt Destroy
+        uses: gruntwork-io/terragrunt-action@v2.1.5
+        with:
+          tf_version: ${{ env.TERRAFORM_VERSION }}
+          tg_version: ${{ env.TERRAGRUNT_VERSION }}
+          tg_dir: terragrunt
+          tg_command: destroy -auto-approve
