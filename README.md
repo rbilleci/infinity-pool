@@ -44,6 +44,20 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
 
 ## Project Structure
 
+```
+
+  ├── .env                     # Environment variables for act
+  ├── .github                  # GitHub configuration
+  │   └── workflows/           # CI/CD Workflows for deploying and destroying Infinity Pool
+  ├── README.md                # Overview and project documentation.
+  ├── app/                     # Infinity Pool services
+  │   ├── backend/             # Backend Service, python and docker files
+  │   └── gateway/             # Gateway Service, python and docker files
+  ├── docs/                    # README.md resources (images)
+  ├── helm/                    # Helm chart for deploying gateway and backend service
+  ├── terraform/               # Terraform infrastructure-as-code configuration.
+  └── terragrunt/              # Terragrunt infrastructure-as-code configuration.
+```
 
 
 ---
