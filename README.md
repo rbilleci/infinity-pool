@@ -60,6 +60,17 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
 
 <div style="clear:right"/>
 
+#### Network Topology
+
+The Infintity Pool application follows best practices for running highly reliable and fault tolerant serivces in the cloud:
+1. The VPC is configured with public, private, and database subnets.
+    - The *public subnets* contain only the Application Load Balancers and NAT Gateways.
+    - The *private subnets* contain EKS nodes for the Gateway Services and Backend Services.
+    - The *database subnets* contain the Aurora Serverless clusters
+2. All resources are configured to run across 3 availability zones. 
+   Note: for cost savings, the AWS NAT Gateway is configued in a single AZ. To run this in production, you should change
+   the VPC module configuration in the `terraform` configuration. 
+
 #### Project Structure
 
 ```
