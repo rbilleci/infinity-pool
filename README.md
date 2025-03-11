@@ -29,18 +29,18 @@ To run the Infinity Pool application, you will require the following:
 ### Step 1: Create a new repository from the template
 In the Infinity Pool GitHub project, select `Use this template` in the top right of the home page.
 Then, select `Create a new repository`.
-<br/><div style="text-align: center;"><img src="docs/images/use-template-1.png" width="800" alt=""></div><br/>
+<br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/use-template-1.png" width="800" alt=""></div><br/>
 
 Enter a repository name and select if you want the repository to be public or private. 
 Then select `Create repository`.
 
-<br/><div style="text-align: center;"><img src="docs/images/use-template-2.png" width="800" alt=""></div><br/>
+<br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/use-template-2.png" width="800" alt=""></div><br/>
 
 After a few seconds, your new repository will be created from the Infinity Pool template. 
 In this example, we named the repository `vigilant-pancake`. 
 You can name you repository how you want.
 
-<br/><div style="text-align: center;"><img src="docs/images/use-template-3.png" width="800" alt=""></div><br/>
+<br/><div style="text-align: center;><img style="border: 1px solid white" src="docs/images/use-template-3.png" width="800" alt=""></div><br/>
 
 ### Get an AWS Account
 
@@ -77,15 +77,16 @@ the AWS Console or get it from the command line.
 
 1. Login to the AWS Console, search for "ec2", then navigate to the EC2 page
 
-    <br/><br/><div style="text-align: center;"><img src="docs/images/load-balancer-1.png" width="800" alt=""></div><br/><br/>
+    <br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/load-balancer-1.png" width="800" alt=""></div><br/>
 
 2. In the sidebar, select "Load Balancers"
 
-   <br/><br/><div style="text-align: center;"><img src="docs/images/load-balancer-2.png" width="800" alt=""></div><br/><br/>
+   <br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/load-balancer-2.png" width="800" alt=""></div><br/>
 
 3. You will then see a list of the load balancers. Find the load balancer a name starting with `k8s-default-gateway`. 
    This is the load balancer to the gateway service. You can copy its DNS name and paste it into your web browser.
-   <br/><br/><div style="text-align: center;"><img src="docs/images/load-balancer-3.png" width="800" alt=""></div><br/><br/>
+   
+    <br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/load-balancer-3.png" width="800" alt=""></div><br/>
 
 #### Alternative: Getting the DNS Name from the Command Line
 
@@ -114,7 +115,7 @@ select the button 'Run workflow' as shown in the screenshot:
 
 Expect it to take 15-30 minutes for the infrastructure to be destroyed.
 
-![screenshot-destroy-workflow.png](docs/images/screenshot-destroy-workflow.png)
+<br/><div style="text-align: center;"><img style="border: 1px solid white" src="docs/images/screenshot-destroy-workflow.png" width="800" alt=""></div><br/>
 
 
 # Testing CI/CD Locally
