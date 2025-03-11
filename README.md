@@ -22,13 +22,13 @@ To run the Infinity Pool application, you will require the following:
 
 ## Deploying the Infinity Pool Application
 
-### 1. Get an AWS Account
+### Get an AWS Account
 
 A prerequisite to deploying the Infinity Pool application is to have an AWS Account. 
 The application is deployed to the eu-west-1 region by default.
 You will need to create an ACCESS KEY and SECRET ACCESS KEY.  These will be configured as secrets for GitHub Actions. 
 
-### 2. Configuring secrets GitHub for GitHub Actions
+### Configuring secrets GitHub for GitHub Actions
 
 Configure the following GitHub Secrets. These are required to deploy the infinity pool application to your AWS account. 
 For information on how to configure secrets in GitHub Actions [here.](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
@@ -40,6 +40,12 @@ You also need to set the AWS_REGION as a GitHub variable (not a secret)
     
     AWS_REGION=eu-west-1
 
+### Monitoring Progress of Deployment
+
+Deploying the Infinity Pool sample application can take between 15-30 minutes, due to provisioning of the EKS cluster
+and Aurora Serverless database cluster.
+
+<< PLACEHOLDER: Describe how to view job in GitHub >>
 
 ### Destroying the Environment
 

@@ -75,7 +75,7 @@ jobs:
           tg_command: apply
 
   deploy-services:
-    name: Build the Backend
+    name: Deploy Infinity Pool Services
     needs: [ deploy-infra ]
     runs-on: ubuntu-latest
     steps:
@@ -137,8 +137,8 @@ jobs:
           chart-path: helm/
           namespace: default
           values: |
-            aws.accountId=${{ env.AWS_REGION }},
-            aws.region=${{ env.AWS_ACCOUNT_ID }},
+            aws.accountId=${{ env.AWS_ACCOUNT_ID }},
+            aws.region=${{ env.AWS_REGION }},
             gateway.image.repository=${{ env.REPOSITORY }},
             gateway.image.tag=${{ env.GATEWAY_IMAGE_TAG }},
             backend.image.repository=${{ env.REPOSITORY }},
