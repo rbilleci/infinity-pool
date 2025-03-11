@@ -1,3 +1,5 @@
+# Act
+.secrets
 # Terraform
 .terraform/
 *.tfstate

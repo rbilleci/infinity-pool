@@ -1,5 +1,7 @@
 name: Infinity Pool CI/CD
-
+env:
+  TERRAFORM_VERSION: 1.11.1
+  TERRAGRUNT_VERSION: 0.75.4
 on:
   push:
     branches:
@@ -13,13 +15,15 @@ jobs:
     name: Lint and Static Analysis
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository tbreo the GitHub Actions runner
+      # Checkout the repository with the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
-      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      # Install the latest version of Terraform CLI and configure the Terraform CLI
+      # configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      # Initialize a new or existing Terraform working directory by creating initial files,
+      # loading any remote state, downloading modules, etc.
       - name: Terraform Init
         run: terraform init
       # Checks that all Terraform configuration files adhere to a canonical format
@@ -31,3 +35,62 @@ jobs:
       # Helm linting
       #- name: Lint Helm Chart
       #  run: helm lint ./helm
+
+  deploy-infra:
+    name: Deploy the Infrastructure
+    needs: [ lint ]
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/gruntwork-io/terragrunt-action
+      - name: Run Terragrunt Plan
+        uses: gruntwork-io/terragrunt-action@v2.1.5
+        with:
+          working_directory: terragrunt
+          tf_version: ${{ env.TERRAFORM_VERSION }}
+          tg_version: ${{ env.TERRAGRUNT_VERSION }}
+          tg_dir: terragrunt
+          tg_command: plan
+
+  deploy-services:
+    name: Build the Backend
+    needs: [ deploy-infra ]
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository with the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Configure AWS Credentials. See: https://github.com/aws-actions/configure-aws-credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Login to ECR. See: https://github.com/aws-actions/amazon-ecr-login
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # BACKEND SERVICE
+      - name: Build, tag, and push BACKEND docker image to Amazon ECR
+        working-directory: app/backend
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: infinity-pool
+          IMAGE_TAG: backend-${{ github.sha }}
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64 -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      # GATEWAY SERVICE
+      - name: Build, tag, and push GATEWAY docker image to Amazon ECR
+        working-directory: app/gateway
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: infinity-pool
+          IMAGE_TAG: gateway-${{ github.sha }}
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64 -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
