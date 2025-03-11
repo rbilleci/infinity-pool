@@ -44,7 +44,7 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
 #### Deployment Architecture
 
 
-<img src="docs/images/sa-components.png" width="500" align="left">
+<img src="docs/images/sa-components.png" width="500" align="right">
 
 1. **GitHub:** on commit a workflow is triggered. GitHub runners use Terragrunt, Terraform, and Helm to deploy the infrastructure. 
 2. **Terraform State:** is stored in Amazon S3
@@ -58,7 +58,7 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
    the **GatewayService**, through the ALB, and back to the requester.
 
 
-<div style="clear:left"/>
+<div style="clear:right"/>
 
 #### Project Structure
 
