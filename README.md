@@ -1,17 +1,50 @@
 
-# Infinity Pool Sample Application
+# Infinity Pool Sample Project
 
-## Introduction
+## Overview
 
-This is a guide to setting up the Infinity Pool sample application.
+The Infinity Pool sample project demonstrates how to use container orchestration and 
+Infrastructure-as-Code (IaC) technologies to build, deploy, run, and scale infrastructure and services on 
+Amazon Web Services (AWS). Originally developed as part of an interview exercise, this project has been 
+made public in the hope that it will benefit others. While the project is fully functional, 
+there is room for improvement and optimization—contributions are welcome!
+
+Infinity Pool is provided as a GitHub template, making it easy to create a new project from the template and 
+customize it to your needs.
+
+Let's start by looking at the solution architecture for Infinity Pool.
 
 ## Solution Architecture
 
+### Technologies Used
+
+The Infinity Pool infrastructure and services are built on the following technologies:
+- AWS as the cloud provider.
+- EKS Auto Mode for container orchestration.
+- Amazon Aurora Serverless for PostgreSQL as the database engine.
+- AWS Secrets Manager for secure storage of database credentials.
+
+### Infinity Pool Services Overview
+Infinity Pool consists of two simple microservices:
+* Gateway Service: Receives requests through an Application Load Balancer.  Forwards the requests to the Backend Service.
+* Backend Service: Processes requests received from the Gateway. Queries with the postgres database to retrieve 
+  "hello world" messages, returning them to the Gateway Service.
+
+## CI/CD Architecture
+
+Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that includes:
+
+- Terragrunt: For managing Terraform configurations.
+- Terraform: For provisioning infrastructure, with Amazon S3 used for state management.
+- Helm: For deploying the Gateway Service and Backend Service to EKS.
+- GitHub Actions: For continuous integration and delivery, with act available for local workflow testing.
+
+## Deployment Architecture
 << PLACEHOLDER >>
 
-## Project Layout
+## Project Structure
 
-<< INFORMATION ON FILES IN PROJECT >>
+
 
 ---
 
