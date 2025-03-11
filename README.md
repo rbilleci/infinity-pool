@@ -3,10 +3,7 @@
 
 # Infinity Pool Sample Project
 
-<p style="float: left; margin-right: 20px;">
-  <img src="docs/images/pool-0.png" width="129" alt="">
-</p>
-
+<img src="docs/images/pool-0.png" width="150" align="left">
 The Infinity Pool sample project demonstrates how to use container orchestration and 
 Infrastructure-as-Code (IaC) technologies to build, deploy, run, and scale infrastructure and services on 
 Amazon Web Services (AWS). Originally developed as part of an interview exercise, this project has been 
