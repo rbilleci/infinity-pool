@@ -1,0 +1,46 @@
+name: Destroy the Infinity Pool Application
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  TERRAFORM_VERSION: 1.11.1
+  TERRAGRUNT_VERSION: 0.75.4
+on:
+  workflow_dispatch:  # This makes the workflow manually triggerable
+
+jobs:
+  destroy-infra:
+    name: Deploy the Infrastructure
+    needs: [ lint ]
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository with the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Configure AWS Credentials. See: https://github.com/aws-actions/configure-aws-credentials
+      - name: Configure AWS credentials
+        id: aws-credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          output-credentials: true
+      - name: Set AWS Account ID
+        run: echo AWS_ACCOUNT_ID=${{ steps.aws-credentials.outputs.aws-account-id}} >> $GITHUB_ENV
+
+      # DELETE ECR Images
+      - name: Delete All ECR Images
+        env:
+          REPOSITORY: infinity-pool
+        run: |
+          echo "Listing images in repo ${{ env.REPOSITORY }}"
+          IMAGES=$(aws ecr list-images --repository-name "${{ env.REPOSITORY }}" --query 'imageIds[*]' --output json)
+          if [ "$IMAGES" != "[]" ]; then
+            echo "Deleting images from ${{ env.REPOSITORY }}"
+            # Option 1: Using a temporary file
+            echo "$IMAGES" > images.json
+            aws ecr batch-delete-image --repository-name "${{ env.REPOSITORY }}" --image-ids file://images.json
+            rm images.json
+          else
+            echo "No images found in ${{ env.REPOSITORY }} to delete."
+          fi
