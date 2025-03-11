@@ -1,4 +1,6 @@
 
+
+<br/><div style="text-align: center;"><img src="docs/images/pool-0.png" width="256" alt=""></div><br/>
 # Infinity Pool Sample Project
 
 ## Overview
