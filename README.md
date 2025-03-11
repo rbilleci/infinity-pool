@@ -44,7 +44,7 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
 #### Deployment Architecture
 
 
-<img src="docs/images/sa-components.png" width="500" align="right">
+<img src="docs/images/sa-components.png" width="550" align="right">
 
 1. **GitHub:** on commit a workflow is triggered. GitHub runners use Terragrunt, Terraform, and Helm to deploy the infrastructure. 
 2. **Terraform State:** is stored in Amazon S3
@@ -93,7 +93,7 @@ The Infintity Pool application follows best practices for running highly reliabl
 #### Prerequisites
 To run the Infinity Pool application, you will require the following:
 
-* **AWS Account:** the Infinity Pool sample application is built on AWS. You need access to an account.
+* An **AWS Account:** the Infinity Pool sample application is built on AWS. You need access to an account.
 * **AWS Experience:** basic experience with AWS is required. 
     You need familiarity with IAM and EC2, and must know how to create an access key.
 * **GitHub Account:** Infinity Pool uses GitHub actions for deployment, so you need a GitHub account. 
