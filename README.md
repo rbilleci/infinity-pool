@@ -1,9 +1,11 @@
 
 
-<br/><div style="text-align: center;"><img src="docs/images/pool-0.png" width="256" alt=""></div><br/>
 
 # Infinity Pool Sample Project
 
+<p style="float: left; margin-right: 20px;">
+  <img src="docs/images/pool-0.png" width="129" alt="">
+</p>
 
 The Infinity Pool sample project demonstrates how to use container orchestration and 
 Infrastructure-as-Code (IaC) technologies to build, deploy, run, and scale infrastructure and services on 
