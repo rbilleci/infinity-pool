@@ -102,8 +102,8 @@ jobs:
           REPOSITORY: infinity-pool
           BACKEND_IMAGE_TAG: backend-${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:BACKEND_IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:BACKEND_IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$BACKEND_IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$BACKEND_IMAGE_TAG
 
       # GATEWAY SERVICE
       - name: Build, tag, and push GATEWAY docker image to Amazon ECR
@@ -113,5 +113,7 @@ jobs:
           REPOSITORY: infinity-pool
           GATEWAY_IMAGE_TAG: gateway-${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:GATEWAY_IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:GATEWAY_IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$GATEWAY_IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$GATEWAY_IMAGE_TAG
+
+      # RUN HELM
