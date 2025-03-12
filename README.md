@@ -22,7 +22,7 @@ Let's start by looking at the solution architecture for Infinity Pool.
 The Infinity Pool infrastructure and services are built on the following technologies:
 
 - AWS as the cloud provider.
-- EKS Auto Mode for container orchestration.
+- EKS Auto Mode for container orchestration, with AWS ECR for container images.
 - Amazon Aurora Serverless for PostgreSQL as the database engine.
 - AWS Secrets Manager for secure storage of database credentials.
 
