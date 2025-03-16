@@ -198,11 +198,16 @@ You can manyally trigger the deployment in GitHub Actions.
 5. Wait until the workflow finishes execution before continuing. Deploying the Infinity Pool sample application can take between 15-30 minutes, 
 due to provisioning of the EKS cluster, Aurora Serverless database cluster, and Application Load Balancers.
 
-
 #### Validating the Application is running
 
 To validate the application is running, you can connect to the gateway service via the provisioned 
-Application Load Balancer (ALB). To get the DNS name of the load balancer, you can either retrieve it from
+Application Load Balancer (ALB). 
+
+
+**NOTE:** Even after the GitHub workflow completes, you may still need to wait 5-10 minutes
+for the Application Load Balancer to finishing provisioning. Be patient, and keep checking every few minutes.
+
+To get the DNS name of the load balancer, you can either retrieve it from
 the AWS Console or get it from the command line.
 
 ##### Getting the DNS Name from AWS Console
