@@ -62,7 +62,7 @@ resource "aws_iam_role" "service_role" {
         }
         Condition = {
           StringEquals = {
-            "${replace(module.eks.cluster_oidc_issuer_url, "https://", "")}:sub" = "system:serviceaccount:default:${var.service_role_name}"
+            "${replace(module.eks.cluster_oidc_issuer_url, "https://", "")}:sub" = "system:serviceaccount:default:svc-account"
           }
         }
       }
