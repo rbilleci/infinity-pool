@@ -58,7 +58,7 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
    the **GatewayService**, through the ALB, and back to the requester.
 
 
-<div style="clear:right"/>
+<div style="clear:right"></div>
 
 #### Network Topology
 
@@ -84,8 +84,9 @@ The Infinity Pool application follows best practices for running highly reliable
   │   └── gateway/             # Gateway Service, python and docker files
   ├── docs/                    # README.md resources (images)
   ├── helm/                    # Helm chart for deploying gateway and backend service
-  ├── terraform/               # Terraform infrastructure-as-code configuration.
-  └── terragrunt/              # Terragrunt infrastructure-as-code configuration.
+  └── infrastructure/          # Infrastructure-as-Code
+      ├── live/                # Terragrunt Live Configuration
+      └── modules/             # Terraform Modules
 ```
 
 
@@ -231,7 +232,7 @@ Also make sure to have run `aws configure` so that your credentials are properly
 
 Then, run the following commands:
 
-    aws eks update-kubeconfig --region eu-west-1 --name infinity-pool-eks
+    aws eks update-kubeconfig --region eu-west-1 --name eks-infinity-pool-dev
     kubectl get ingress gateway -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' && echo
 
 You should get an similar to: `k8s-default-gateway-aaaaaaaaaa-1111111111.eu-west-1.elb.amazonaws.com`.
