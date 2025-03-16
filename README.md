@@ -8,9 +8,7 @@ The Infinity Pool sample project demonstrates how to use container orchestration
 Infrastructure-as-Code (IaC) technologies to build, deploy, run, and scale infrastructure and services on 
 Amazon Web Services (AWS). Originally developed as part of an interview exercise, this project has been 
 made public in the hope that it will benefit others. While the project is fully functional, 
-there is room for improvement and optimization—contributions are welcome!
-
-Infinity Pool is provided as a GitHub template, making it easy to create a new project from the template and 
+there is room for improvement and optimization—contributions are welcome! Infinity Pool is provided as a GitHub template, making it easy to create a new project from the template and 
 customize it to your needs.
 
 Let's start by looking at the solution architecture for Infinity Pool.
