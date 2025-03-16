@@ -52,7 +52,7 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
 6. **Gateway Service:** receives requests 
 7. The **Gateway Service** forwards requests to the Backend Service.
 8. The **Backend Service** handles requests from the Gateway Service. It gets database credentials from the AWS Secrets Manager.
-9. The **Backend Servuce** queries a Postgres database to fetch a "hello world" message. This message is passed back to 
+9. The **Backend Service** queries a Postgres database to fetch a "hello world" message. This message is passed back to 
    the **GatewayService**, through the ALB, and back to the requester.
 
 
