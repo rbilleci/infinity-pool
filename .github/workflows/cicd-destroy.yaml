@@ -1,8 +1,12 @@
 name: Destroy the Infinity Pool Application
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
-  TERRAFORM_VERSION: 1.11.1
-  TERRAGRUNT_VERSION: 0.75.4
+  ENVIRONMENT: dev
+  DEPLOYMENT_NAME: infinity-pool
+  DEPLOYMENT_KEY: infinity-pool-dev
+  TERRAFORM_VERSION: 1.11.2
+  TERRAGRUNT_VERSION: 0.75.10
+  TERRAGRUNT_DIRECTORY: infrastructure/live/dev
 on:
   workflow_dispatch:  # This makes the workflow manually triggerable
 
@@ -29,19 +33,17 @@ jobs:
 
       # DELETE ECR Images
       - name: Delete All ECR Images
-        env:
-          REPOSITORY: infinity-pool
         run: |
-          echo "Listing images in repo ${{ env.REPOSITORY }}"
-          IMAGES=$(aws ecr list-images --repository-name "${{ env.REPOSITORY }}" --query 'imageIds[*]' --output json)
+          echo "Listing images in repo ${{ env.DEPLOYMENT_KEY }}"
+          IMAGES=$(aws ecr list-images --repository-name "${{ env.DEPLOYMENT_KEY }}" --query 'imageIds[*]' --output json)
           if [ "$IMAGES" != "[]" ]; then
-            echo "Deleting images from ${{ env.REPOSITORY }}"
+            echo "Deleting images from ${{ env.DEPLOYMENT_KEY }}"
             # Option 1: Using a temporary file
             echo "$IMAGES" > images.json
-            aws ecr batch-delete-image --repository-name "${{ env.REPOSITORY }}" --image-ids file://images.json
+            aws ecr batch-delete-image --repository-name "${{ env.DEPLOYMENT_KEY }}" --image-ids file://images.json
             rm images.json
           else
-            echo "No images found in ${{ env.REPOSITORY }} to delete."
+            echo "No images found in ${{ env.DEPLOYMENT_KEY }} to delete."
           fi
 
       # DESTROY
@@ -51,5 +53,5 @@ jobs:
         with:
           tf_version: ${{ env.TERRAFORM_VERSION }}
           tg_version: ${{ env.TERRAGRUNT_VERSION }}
-          tg_dir: terragrunt
-          tg_command: destroy -auto-approve
+          tg_dir: ${{ env.TERRAGRUNT_DIRECTORY }}
+          tg_command: run-all destroy -auto-approve

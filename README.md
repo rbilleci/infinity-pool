@@ -8,9 +8,7 @@ The Infinity Pool sample project demonstrates how to use container orchestration
 Infrastructure-as-Code (IaC) technologies to build, deploy, run, and scale infrastructure and services on 
 Amazon Web Services (AWS). Originally developed as part of an interview exercise, this project has been 
 made public in the hope that it will benefit others. While the project is fully functional, 
-there is room for improvement and optimization—contributions are welcome!
-
-Infinity Pool is provided as a GitHub template, making it easy to create a new project from the template and 
+there is room for improvement and optimization—contributions are welcome! Infinity Pool is provided as a GitHub template, making it easy to create a new project from the template and 
 customize it to your needs.
 
 Let's start by looking at the solution architecture for Infinity Pool.
@@ -58,11 +56,11 @@ Infinity Pool uses a modern CI/CD and Infrastructure-as-Code (IaC) approach that
    the **GatewayService**, through the ALB, and back to the requester.
 
 
-<div style="clear:right"/>
+<div style="clear:right"></div>
 
 #### Network Topology
 
-The Infintity Pool application follows best practices for running highly reliable and fault tolerant serivces in the cloud:
+The Infinity Pool application follows best practices for running highly reliable and fault tolerant serivces in the cloud:
 1. The VPC is configured with public, private, and database subnets.
     - The *public subnets* contain only the Application Load Balancers and NAT Gateways.
     - The *private subnets* contain EKS nodes for the Gateway Services and Backend Services.
@@ -84,8 +82,9 @@ The Infintity Pool application follows best practices for running highly reliabl
   │   └── gateway/             # Gateway Service, python and docker files
   ├── docs/                    # README.md resources (images)
   ├── helm/                    # Helm chart for deploying gateway and backend service
-  ├── terraform/               # Terraform infrastructure-as-code configuration.
-  └── terragrunt/              # Terragrunt infrastructure-as-code configuration.
+  └── infrastructure/          # Infrastructure-as-Code
+      ├── live/                # Terragrunt Live Configuration
+      └── modules/             # Terraform Modules
 ```
 
 
@@ -199,11 +198,16 @@ You can manyally trigger the deployment in GitHub Actions.
 5. Wait until the workflow finishes execution before continuing. Deploying the Infinity Pool sample application can take between 15-30 minutes, 
 due to provisioning of the EKS cluster, Aurora Serverless database cluster, and Application Load Balancers.
 
-
 #### Validating the Application is running
 
 To validate the application is running, you can connect to the gateway service via the provisioned 
-Application Load Balancer (ALB). To get the DNS name of the load balancer, you can either retrieve it from
+Application Load Balancer (ALB). 
+
+
+**NOTE:** Even after the GitHub workflow completes, you may still need to wait 5-10 minutes
+for the Application Load Balancer to finishing provisioning. Be patient, and keep checking every few minutes.
+
+To get the DNS name of the load balancer, you can either retrieve it from
 the AWS Console or get it from the command line.
 
 ##### Getting the DNS Name from AWS Console
@@ -231,7 +235,7 @@ Also make sure to have run `aws configure` so that your credentials are properly
 
 Then, run the following commands:
 
-    aws eks update-kubeconfig --region eu-west-1 --name infinity-pool-eks
+    aws eks update-kubeconfig --region eu-west-1 --name eks-infinity-pool-dev
     kubectl get ingress gateway -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' && echo
 
 You should get an similar to: `k8s-default-gateway-aaaaaaaaaa-1111111111.eu-west-1.elb.amazonaws.com`.

@@ -20,7 +20,7 @@ spec:
       serviceAccountName: svc-account
       containers:
         - name: backend
-          image: "{{ .Values.aws.accountId }}.dkr.ecr.{{ .Values.aws.region }}.amazonaws.com/{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          image: "{{ .Values.backend.image.repositoryUrl }}:{{ .Values.backend.image.tag }}"
           ports:
             - containerPort: 80
           resources:
@@ -46,6 +46,6 @@ spec:
             - name: AWS_DEFAULT_REGION
               value: "{{ .Values.aws.region }}"
             - name: DB_HOST
-              value: "db.infinity-pool.internal"
+              value: "{{ .Values.backend.dbEndpoint }}"
             - name: DB_PORT
               value: "5432"

@@ -1,10 +1,12 @@
 name: Infinity Pool CI/CD
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
-  CLUSTER_NAME: infinity-pool-eks
-  RELEASE_NAME: infinity-pool
-  TERRAFORM_VERSION: 1.11.1
-  TERRAGRUNT_VERSION: 0.75.4
+  ENVIRONMENT: dev
+  DEPLOYMENT_NAME: infinity-pool
+  DEPLOYMENT_KEY: infinity-pool-dev
+  TERRAFORM_VERSION: 1.11.2
+  TERRAGRUNT_VERSION: 0.75.10
+  TERRAGRUNT_DIRECTORY: infrastructure/live/dev
 on:
   workflow_dispatch:  # This makes the workflow manually triggerable
   push:
@@ -47,15 +49,18 @@ jobs:
       # Terraform linting and validation
       - name: Terraform Validate
         run: terraform validate
-      # Helm linting
-      #- name: Lint Helm Chart
-      #  run: helm lint ./helm
 
   deploy-infra:
     name: Deploy the Infrastructure
     if: github.event_name != 'push' || github.event.before != '0000000000000000000000000000000000000000'
     needs: [ lint ]
     runs-on: ubuntu-latest
+    outputs:
+      DB_ENDPOINT: ${{ steps.terragrunt-apply.outputs.DB_ENDPOINT }}
+      ECR_REPOSITORY_URL: ${{ steps.terragrunt-apply.outputs.ECR_REPOSITORY_URL }}
+      EKS_CLUSTER_ENDPOINT: ${{ steps.terragrunt-apply.outputs.EKS_CLUSTER_ENDPOINT }}
+      EKS_CLUSTER_NAME: ${{ steps.terragrunt-apply.outputs.EKS_CLUSTER_NAME }}
+      SERVICE_ROLE_ARN: ${{ steps.terragrunt-apply.outputs.SERVICE_ROLE_ARN }}
     steps:
       # Checkout the repository with the GitHub Actions runner
       - name: Checkout
@@ -69,23 +74,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           output-credentials: true
-      - name: Set AWS Account ID
-        run: echo AWS_ACCOUNT_ID=${{ steps.aws-credentials.outputs.aws-account-id}} >> $GITHUB_ENV
-      #  https://github.com/gruntwork-io/terragrunt-action
-      - name: Run Terragrunt Plan
+
+      # Infrastructure deployment
+      - name: Terragrunt Apply
+        id: terragrunt-apply
         uses: gruntwork-io/terragrunt-action@v2.1.5
+        env:
+          INPUT_POST_EXEC_1: terragrunt run-all output -json > outputs.json
+          INPUT_POST_EXEC_2: cat outputs.json
+          INPUT_POST_EXEC_3: jq -r -s 'add | to_entries | .[] | "\(.key | ascii_upcase)=\(.value.value)"' outputs.json  >> $GITHUB_OUTPUT
         with:
           tf_version: ${{ env.TERRAFORM_VERSION }}
           tg_version: ${{ env.TERRAGRUNT_VERSION }}
-          tg_dir: terragrunt
-          tg_command: plan
-      - name: Run Terragrunt Apply
-        uses: gruntwork-io/terragrunt-action@v2.1.5
-        with:
-          tf_version: ${{ env.TERRAFORM_VERSION }}
-          tg_version: ${{ env.TERRAGRUNT_VERSION }}
-          tg_dir: terragrunt
-          tg_command: apply
+          tg_dir: ${{ env.TERRAGRUNT_DIRECTORY }}
+          tg_command: run-all apply
 
   deploy-services:
     name: Deploy Infinity Pool Services
@@ -93,6 +95,7 @@ jobs:
     needs: [ deploy-infra ]
     runs-on: ubuntu-latest
     steps:
+
       # Checkout the repository with the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
@@ -105,8 +108,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - name: Set AWS Account ID
-        run: echo AWS_ACCOUNT_ID=${{ steps.aws-credentials.outputs.aws-account-id}} >> $GITHUB_ENV
 
       # Login to ECR. See: https://github.com/aws-actions/amazon-ecr-login
       - name: Login to Amazon ECR
@@ -117,23 +118,19 @@ jobs:
       - name: Build, tag, and push BACKEND docker image to Amazon ECR
         working-directory: app/backend
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: infinity-pool
           BACKEND_IMAGE_TAG: backend-${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$BACKEND_IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$BACKEND_IMAGE_TAG
+          docker build -t ${{ needs.deploy-infra.outputs.ECR_REPOSITORY_URL }}:$BACKEND_IMAGE_TAG .
+          docker push ${{ needs.deploy-infra.outputs.ECR_REPOSITORY_URL }}:$BACKEND_IMAGE_TAG
 
       # GATEWAY SERVICE
       - name: Build, tag, and push GATEWAY docker image to Amazon ECR
         working-directory: app/gateway
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: infinity-pool
           GATEWAY_IMAGE_TAG: gateway-${{ github.sha }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$GATEWAY_IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$GATEWAY_IMAGE_TAG
+          docker build -t ${{ needs.deploy-infra.outputs.ECR_REPOSITORY_URL }}:$GATEWAY_IMAGE_TAG .
+          docker push ${{ needs.deploy-infra.outputs.ECR_REPOSITORY_URL }}:$GATEWAY_IMAGE_TAG
 
       # RUN HELM
       # See: https://github.com/marketplace/actions/deploy-helm-chart-to-aws-eks-cluster
@@ -142,19 +139,23 @@ jobs:
         env:
           BACKEND_IMAGE_TAG: backend-${{ github.sha }}
           GATEWAY_IMAGE_TAG: gateway-${{ github.sha }}
-          REPOSITORY: infinity-pool
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          cluster-name: ${{ env.CLUSTER_NAME }}
+          cluster-name: ${{ needs.deploy-infra.outputs.EKS_CLUSTER_NAME }}
           chart-path: helm/
           namespace: default
           values: |
-            aws.accountId=${{ env.AWS_ACCOUNT_ID }},
             aws.region=${{ env.AWS_REGION }},
-            gateway.image.repository=${{ env.REPOSITORY }},
+            aws.serviceRoleArn=${{ needs.deploy-infra.outputs.SERVICE_ROLE_ARN }},
+            gateway.image.repositoryUrl=${{ needs.deploy-infra.outputs.ECR_REPOSITORY_URL }},
             gateway.image.tag=${{ env.GATEWAY_IMAGE_TAG }},
-            backend.image.repository=${{ env.REPOSITORY }},
-            backend.image.tag=${{ env.BACKEND_IMAGE_TAG }}
-          name: ${{ env.RELEASE_NAME }}
+            backend.image.repositoryUrl=${{ needs.deploy-infra.outputs.ECR_REPOSITORY_URL }},
+            backend.image.tag=${{ env.BACKEND_IMAGE_TAG }},
+            backend.dbEndpoint=${{ needs.deploy-infra.outputs.DB_ENDPOINT }}
+          name: ${{ env.DEPLOYMENT_KEY }}
+
+
+
+
