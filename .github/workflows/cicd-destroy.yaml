@@ -54,4 +54,4 @@ jobs:
           tf_version: ${{ env.TERRAFORM_VERSION }}
           tg_version: ${{ env.TERRAGRUNT_VERSION }}
           tg_dir: ${{ env.TERRAGRUNT_DIRECTORY }}
-          tg_command: destroy -auto-approve
+          tg_command: run-all destroy -auto-approve
