@@ -26,6 +26,14 @@ resource "aws_rds_cluster" "db" {
   }
 }
 
+resource "aws_rds_cluster_instance" "db_instance" {
+  cluster_identifier = aws_rds_cluster.db.id
+  instance_class     = "db.serverless"
+  engine             = aws_rds_cluster.db.engine
+  engine_version     = aws_rds_cluster.db.engine_version
+}
+
+
 # Database Subnets
 resource "aws_db_subnet_group" "db_subnets" {
   name       = "db-subnet-group"
@@ -68,8 +76,6 @@ resource "random_password" "db_password" {
   special = false
 }
 
-# TODO: Preferably, prefix with environment id to allow multiple deployments per account
-# TODO: mismatch between 'db-credentials and db_credentials... confusing'
 resource "aws_secretsmanager_secret" "db_credentials" {
   name                    = "db-credentials"
   recovery_window_in_days = 0
