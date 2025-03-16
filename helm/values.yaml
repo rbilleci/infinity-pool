@@ -1,6 +1,6 @@
 aws:
-  accountId:
   region:
+  serviceRoleArn:
 
 gateway:
   replicaCount: 1
@@ -8,16 +8,17 @@ gateway:
   memory: 128Mi
   image:
     tag:
-    repository:
+    repositoryUrl:
     pullPolicy: IfNotPresent
 
 backend:
   replicaCount: 1
   cpu: 0.5
   memory: 128Mi
+  dbEndpoint: localhost
   image:
     tag:
-    repository:
+    repositoryUrl:
     pullPolicy: IfNotPresent
 
 # With an empty nodeSelector, there’s no restriction on which nodes the pod can run on. We can later add key/value
