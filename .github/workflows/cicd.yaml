@@ -6,7 +6,7 @@ env:
   DEPLOYMENT_KEY: infinity-pool-dev
   TERRAFORM_VERSION: 1.11.2
   TERRAGRUNT_VERSION: 0.75.10
-  TERRAGRUNT_DIRECTORY: infrastructure/live/${{ env.ENVIRONMENT }}
+  TERRAGRUNT_DIRECTORY: infrastructure/live/dev
 on:
   workflow_dispatch:  # This makes the workflow manually triggerable
   push:
