@@ -1,10 +1,12 @@
 name: Infinity Pool CI/CD
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
-  RELEASE_NAME: infinity-pool
-  TERRAFORM_VERSION: 1.11.1
-  TERRAGRUNT_VERSION: 0.75.4
-  TERRAGRUNT_DIRECTORY: infrastructure/live/dev
+  ENVIRONMENT: dev
+  DEPLOYMENT_NAME: ${{ toLower(github.repository.split('/')[1]) }}
+  DEPLOYMENT_KEY: ${{ env.DEPLOYMENT_NAME }}-${{ env.ENVIRONMENT }}
+  TERRAFORM_VERSION: 1.11.2
+  TERRAGRUNT_VERSION: 0.75.10
+  TERRAGRUNT_DIRECTORY: infrastructure/live/${{ env.ENVIRONMENT }}
 on:
   workflow_dispatch:  # This makes the workflow manually triggerable
   push:
@@ -73,6 +75,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           output-credentials: true
 
+      # Infrastructure deployment
       - name: Terragrunt Apply
         id: terragrunt-apply
         uses: gruntwork-io/terragrunt-action@v2.1.5
@@ -85,7 +88,6 @@ jobs:
           tg_version: ${{ env.TERRAGRUNT_VERSION }}
           tg_dir: ${{ env.TERRAGRUNT_DIRECTORY }}
           tg_command: run-all apply
-
 
   deploy-services:
     name: Deploy Infinity Pool Services
@@ -152,7 +154,7 @@ jobs:
             backend.image.repositoryUrl=${{ needs.deploy-infra.outputs.ECR_REPOSITORY_URL }},
             backend.image.tag=${{ env.BACKEND_IMAGE_TAG }},
             backend.dbEndpoint=${{ needs.deploy-infra.outputs.DB_ENDPOINT }}
-          name: ${{ env.RELEASE_NAME }}
+          name: ${{ env.DEPLOYMENT_KEY }}
 
 
 
